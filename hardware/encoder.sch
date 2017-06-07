@@ -3651,12 +3651,6 @@ In this library the device names are the same as the pin names of the symbols, t
 <description>&lt;b&gt;Single Pads&lt;/b&gt;&lt;p&gt;
 &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
 <packages>
-<package name="SMD2,54-5,08">
-<description>&lt;b&gt;SMD PAD&lt;/b&gt;</description>
-<smd name="1" x="0" y="0" dx="2.54" dy="5.08" layer="1"/>
-<text x="0" y="0" size="0.0254" layer="27">&gt;VALUE</text>
-<text x="-1.5" y="-2.5" size="1.27" layer="25" rot="R90">&gt;NAME</text>
-</package>
 <package name="SMD1,27-2,54">
 <description>&lt;b&gt;SMD PAD&lt;/b&gt;</description>
 <smd name="1" x="0" y="0" dx="1.27" dy="2.54" layer="1"/>
@@ -3674,22 +3668,6 @@ In this library the device names are the same as the pin names of the symbols, t
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="SMD5" prefix="PAD" uservalue="yes">
-<description>&lt;b&gt;SMD PAD&lt;/b&gt;</description>
-<gates>
-<gate name="1" symbol="PAD" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SMD2,54-5,08">
-<connects>
-<connect gate="1" pin="P" pad="1"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="SMD2" prefix="PAD" uservalue="yes">
 <description>&lt;b&gt;SMD PAD&lt;/b&gt;</description>
 <gates>
@@ -3723,16 +3701,15 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="AGND26" library="supply2" deviceset="GND" device=""/>
 <part name="AGND30" library="supply2" deviceset="GND" device=""/>
 <part name="AGND31" library="supply2" deviceset="GND" device=""/>
-<part name="!CS" library="wirepad" deviceset="SMD5" device=""/>
-<part name="CLK" library="wirepad" deviceset="SMD5" device=""/>
-<part name="MISO" library="wirepad" deviceset="SMD5" device=""/>
-<part name="MOSI" library="wirepad" deviceset="SMD5" device=""/>
-<part name="A" library="wirepad" deviceset="SMD5" device=""/>
-<part name="B" library="wirepad" deviceset="SMD5" device=""/>
-<part name="VCC" library="wirepad" deviceset="SMD5" device=""/>
-<part name="GND" library="wirepad" deviceset="SMD5" device=""/>
 <part name="AGND1" library="supply2" deviceset="GND" device=""/>
 <part name="PAD1" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD2" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD3" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD4" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD8" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD5" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD6" library="wirepad" deviceset="SMD2" device=""/>
+<part name="PAD7" library="wirepad" deviceset="SMD2" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3745,40 +3722,15 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="AGND26" gate="GND" x="20.32" y="-2.54"/>
 <instance part="AGND30" gate="GND" x="15.24" y="-12.7"/>
 <instance part="AGND31" gate="GND" x="-12.7" y="-12.7"/>
-<instance part="!CS" gate="1" x="-15.24" y="12.7" smashed="yes">
-<attribute name="NAME" x="-24.003" y="12.0142" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="9.398" size="1.778" layer="96"/>
-</instance>
-<instance part="CLK" gate="1" x="-15.24" y="10.16" smashed="yes">
-<attribute name="NAME" x="-24.003" y="9.4742" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="6.858" size="1.778" layer="96"/>
-</instance>
-<instance part="MISO" gate="1" x="-15.24" y="7.62" smashed="yes">
-<attribute name="NAME" x="-24.003" y="6.9342" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="4.318" size="1.778" layer="96"/>
-</instance>
-<instance part="MOSI" gate="1" x="-15.24" y="5.08" smashed="yes">
-<attribute name="NAME" x="-24.003" y="4.3942" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="1.778" size="1.778" layer="96"/>
-</instance>
-<instance part="A" gate="1" x="-15.24" y="0" smashed="yes">
-<attribute name="NAME" x="-18.923" y="-0.6858" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="-3.302" size="1.778" layer="96"/>
-</instance>
-<instance part="B" gate="1" x="-15.24" y="-2.54" smashed="yes">
-<attribute name="NAME" x="-18.923" y="-3.2258" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-16.383" y="-5.842" size="1.778" layer="96"/>
-</instance>
-<instance part="VCC" gate="1" x="35.56" y="12.7" smashed="yes" rot="R180">
-<attribute name="NAME" x="44.323" y="13.3858" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="36.703" y="16.002" size="1.778" layer="96" rot="R180"/>
-</instance>
-<instance part="GND" gate="1" x="35.56" y="10.16" smashed="yes" rot="R180">
-<attribute name="NAME" x="44.323" y="10.8458" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="36.703" y="13.462" size="1.778" layer="96" rot="R180"/>
-</instance>
 <instance part="AGND1" gate="GND" x="30.48" y="5.08"/>
-<instance part="PAD1" gate="1" x="-43.18" y="-7.62"/>
+<instance part="PAD1" gate="1" x="-15.24" y="12.7"/>
+<instance part="PAD2" gate="1" x="-15.24" y="10.16"/>
+<instance part="PAD3" gate="1" x="-15.24" y="7.62"/>
+<instance part="PAD4" gate="1" x="-15.24" y="5.08"/>
+<instance part="PAD8" gate="1" x="35.56" y="12.7" rot="R180"/>
+<instance part="PAD5" gate="1" x="35.56" y="10.16" rot="R180"/>
+<instance part="PAD6" gate="1" x="-15.24" y="0"/>
+<instance part="PAD7" gate="1" x="-15.24" y="-2.54"/>
 </instances>
 <busses>
 </busses>
@@ -3802,55 +3754,55 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="AGND31" gate="GND" pin="GND"/>
 </segment>
 <segment>
-<pinref part="GND" gate="1" pin="P"/>
-<wire x1="33.02" y1="10.16" x2="30.48" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="30.48" y1="10.16" x2="30.48" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="AGND1" gate="GND" pin="GND"/>
+<pinref part="PAD5" gate="1" pin="P"/>
+<wire x1="30.48" y1="7.62" x2="30.48" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="10.16" x2="33.02" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$38" class="0">
+<net name="CS" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="!CS"/>
 <wire x1="-10.16" y1="12.7" x2="-12.7" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="!CS" gate="1" pin="P"/>
+<pinref part="PAD1" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$39" class="0">
+<net name="CLK" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="CLK"/>
 <wire x1="-10.16" y1="10.16" x2="-12.7" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="CLK" gate="1" pin="P"/>
+<pinref part="PAD2" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$40" class="0">
+<net name="MISO" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="MISO"/>
 <wire x1="-10.16" y1="7.62" x2="-12.7" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="MISO" gate="1" pin="P"/>
+<pinref part="PAD3" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$41" class="0">
+<net name="MOSI" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="MOSI"/>
 <wire x1="-10.16" y1="5.08" x2="-12.7" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="MOSI" gate="1" pin="P"/>
+<pinref part="PAD4" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$42" class="0">
+<net name="A" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="A"/>
 <wire x1="-10.16" y1="0" x2="-12.7" y2="0" width="0.1524" layer="91"/>
-<pinref part="A" gate="1" pin="P"/>
+<pinref part="PAD6" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$43" class="0">
+<net name="B" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="B"/>
 <wire x1="-10.16" y1="-2.54" x2="-12.7" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="B" gate="1" pin="P"/>
+<pinref part="PAD7" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$46" class="0">
+<net name="VCC" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="VDD"/>
 <wire x1="12.7" y1="12.7" x2="15.24" y2="12.7" width="0.1524" layer="91"/>
@@ -3861,8 +3813,8 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="C5" gate="G$1" pin="1"/>
 <wire x1="15.24" y1="12.7" x2="20.32" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="20.32" y1="12.7" x2="20.32" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="VCC" gate="1" pin="P"/>
-<wire x1="20.32" y1="12.7" x2="33.02" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="PAD8" gate="1" pin="P"/>
+<wire x1="33.02" y1="12.7" x2="20.32" y2="12.7" width="0.1524" layer="91"/>
 <junction x="20.32" y="12.7"/>
 </segment>
 </net>
