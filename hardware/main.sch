@@ -10828,6 +10828,7 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 <pad name="C" x="-5.0908" y="-1.2126" drill="0.8" diameter="1.5" rot="R270"/>
 <text x="-5.9558" y="-4.9182" size="1.27" layer="21" font="vector" rot="R270">E</text>
 <text x="-6.1082" y="-2.603" size="1.27" layer="21" font="vector" rot="R270">C</text>
+<hole x="0" y="0" drill="2.5"/>
 </package>
 <package name="LABIRYNT">
 <wire x1="83.1" y1="84.1" x2="-84.9" y2="84.1" width="0.254" layer="48"/>
