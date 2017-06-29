@@ -13938,7 +13938,6 @@ Source: www.kingbright.com</description>
 <part name="+3V25" library="supply1" deviceset="+3V3" device=""/>
 <part name="U$6" library="_microMouse" deviceset="STM32F4X5" device=""/>
 <part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
-<part name="R11" library="resistor" deviceset="R-EU_" device="R0603" value="330"/>
 <part name="R18" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="R19" library="rcl" deviceset="R-EU_" device="R0603" value="4,7k"/>
 <part name="AGND21" library="supply2" deviceset="GND" device=""/>
@@ -14101,6 +14100,7 @@ Source: www.kingbright.com</description>
 <part name="M6" library="micromouse" deviceset="LED_MOUNT" device=""/>
 <part name="M7" library="micromouse" deviceset="LED_MOUNT" device=""/>
 <part name="L1" library="micromouse" deviceset="LABITYNT" device=""/>
+<part name="AGND36" library="supply2" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -14112,7 +14112,7 @@ x0 - main flash memory
 <text x="-33.02" y="96.52" size="1.778" layer="97">VCC VDD - 3,3V
 VEE VSS - GND</text>
 <text x="137.414" y="44.45" size="1.27" layer="97">internal pull-up</text>
-<text x="128.524" y="54.102" size="1.27" layer="97">internal pull-down</text>
+<text x="118.364" y="71.882" size="1.27" layer="97">internal pull-down</text>
 <text x="104.14" y="-7.62" size="1.27" layer="91">Rx</text>
 <text x="104.14" y="-10.16" size="1.27" layer="91">Tx</text>
 <text x="104.14" y="-12.7" size="1.27" layer="91">GND</text>
@@ -14151,7 +14151,6 @@ VEE VSS - GND</text>
 <instance part="+3V25" gate="G$1" x="99.06" y="66.04"/>
 <instance part="U$6" gate="G$1" x="50.8" y="45.72" rot="R90"/>
 <instance part="+3V5" gate="G$1" x="91.44" y="27.94" rot="MR90"/>
-<instance part="R11" gate="G$1" x="147.32" y="66.04" rot="MR270"/>
 <instance part="R18" gate="G$1" x="139.7" y="101.6"/>
 <instance part="R19" gate="G$1" x="147.32" y="93.98" rot="R90"/>
 <instance part="AGND21" gate="GND" x="147.32" y="86.36"/>
@@ -14333,6 +14332,7 @@ VEE VSS - GND</text>
 <instance part="M7" gate="Q" x="86.36" y="165.1"/>
 <instance part="M7" gate="D" x="165.1" y="236.22"/>
 <instance part="L1" gate="A" x="243.84" y="292.1"/>
+<instance part="AGND36" gate="GND" x="45.72" y="96.52"/>
 </instances>
 <busses>
 </busses>
@@ -14672,6 +14672,13 @@ VEE VSS - GND</text>
 <wire x1="-40.64" y1="45.72" x2="-40.64" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="AGND6" gate="GND" pin="GND"/>
 </segment>
+<segment>
+<pinref part="U$6" gate="G$1" pin="PB2"/>
+<wire x1="40.64" y1="83.82" x2="40.64" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="101.6" x2="45.72" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="101.6" x2="45.72" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="AGND36" gate="GND" pin="GND"/>
+</segment>
 </net>
 <net name="D_LS" class="0">
 <segment>
@@ -14804,9 +14811,10 @@ VEE VSS - GND</text>
 <pinref part="+3V5" gate="G$1" pin="+3V3"/>
 </segment>
 <segment>
-<pinref part="R11" gate="G$1" pin="1"/>
 <pinref part="+3V20" gate="G$1" pin="+3V3"/>
-<wire x1="147.32" y1="71.12" x2="147.32" y2="73.66" width="0.1524" layer="91"/>
+<pinref part="S4" gate="G$1" pin="4"/>
+<wire x1="147.32" y1="58.42" x2="139.7" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="58.42" x2="147.32" y2="73.66" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="+3V17" gate="G$1" pin="+3V3"/>
@@ -15127,8 +15135,8 @@ VEE VSS - GND</text>
 </net>
 <net name="BTN1" class="0">
 <segment>
-<wire x1="129.54" y1="68.58" x2="127" y2="68.58" width="0.1524" layer="91"/>
-<label x="127" y="68.58" size="1.016" layer="95" rot="R180" xref="yes"/>
+<wire x1="129.54" y1="68.58" x2="124.46" y2="68.58" width="0.1524" layer="91"/>
+<label x="124.46" y="68.58" size="1.016" layer="95" rot="R180" xref="yes"/>
 <pinref part="S4" gate="G$1" pin="1"/>
 </segment>
 <segment>
@@ -15245,14 +15253,6 @@ VEE VSS - GND</text>
 <junction x="147.32" y="101.6"/>
 <pinref part="S1" gate="G$1" pin="1"/>
 <wire x1="149.86" y1="101.6" x2="149.86" y2="109.22" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$2" class="0">
-<segment>
-<pinref part="R11" gate="G$1" pin="2"/>
-<wire x1="147.32" y1="58.42" x2="147.32" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="S4" gate="G$1" pin="4"/>
-<wire x1="147.32" y1="58.42" x2="139.7" y2="58.42" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$3" class="0">
