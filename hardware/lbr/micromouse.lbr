@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="4" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
@@ -23,7 +23,7 @@
 <layer number="13" name="Route13" color="4" fill="5" visible="no" active="yes"/>
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="yes"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="yes"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="no" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="yes"/>
@@ -52,7 +52,7 @@
 <layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
-<layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
+<layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
@@ -1531,6 +1531,15 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <pad name="P$6" x="1" y="1.7" drill="0.7" shape="square"/>
 <pad name="P$7" x="-0.95" y="1.7" drill="0.7" shape="square"/>
 <pad name="P$8" x="-2.95" y="1.7" drill="0.7" shape="square"/>
+<smd name="4_1" x="-2.9401" y="1.872540625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="10" x="-2.9401" y="1.872540625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="3_1" x="-0.9701" y="1.872540625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="2_1" x="0.9999" y="1.872540625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="1_1" x="2.9699" y="1.872540625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="5_1" x="-2.937559375" y="-1.869340625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="6_1" x="-0.967559375" y="-1.869340625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="7_1" x="1.002440625" y="-1.869340625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
+<smd name="8_1" x="2.972440625" y="-1.869340625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
 </package>
 <package name="MOTOR_MOUNT_V2">
 <wire x1="5" y1="17" x2="-5" y2="17" width="0.127" layer="21"/>
@@ -1551,6 +1560,55 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <circle x="8.5" y="-24.75" radius="1" width="0.05" layer="20"/>
 <rectangle x1="-5" y1="-27.5" x2="5" y2="-17" layer="39"/>
 <rectangle x1="-5" y1="17" x2="5" y2="27.5" layer="39"/>
+</package>
+<package name="LED_MOUNT">
+<wire x1="4" y1="3" x2="4" y2="-3" width="0.1" layer="21"/>
+<wire x1="4" y1="-3" x2="-4" y2="-3" width="0.1" layer="21"/>
+<wire x1="-4" y1="-3" x2="-4" y2="3" width="0.1" layer="21"/>
+<wire x1="-4" y1="3" x2="4" y2="3" width="0.1" layer="21"/>
+<wire x1="-4.0974" y1="2.9974" x2="-4.0974" y2="-3.0026" width="0.1" layer="21"/>
+<wire x1="-4.0974" y1="2.9974" x2="-5.0974" y2="2.9974" width="0.1" layer="21"/>
+<wire x1="-4.0974" y1="-3.0026" x2="-5.0974" y2="-3.0026" width="0.1" layer="21"/>
+<wire x1="-5.0974" y1="2.9974" x2="-5.0974" y2="-3.0026" width="0.1" layer="21"/>
+<wire x1="-4.0574" y1="2.5374" x2="-0.9198" y2="2.3413" width="0.127" layer="21"/>
+<wire x1="-0.9198" y1="2.3413" x2="0.7742" y2="2.0498" width="0.127" layer="21" curve="-12.363211"/>
+<wire x1="0.7742" y1="2.0498" x2="2.4566" y2="1.2144" width="0.127" layer="21" curve="-20.926555"/>
+<wire x1="2.4566" y1="1.2144" x2="2.8245" y2="0.7735" width="0.127" layer="21" curve="-26.573043"/>
+<wire x1="2.8245" y1="0.7735" x2="2.9426" y2="0.2735" width="0.127" layer="21" curve="-26.564253"/>
+<wire x1="-4.0574" y1="-2.4626" x2="-0.9198" y2="-2.2665" width="0.127" layer="21"/>
+<wire x1="-0.9198" y1="-2.2665" x2="0.7742" y2="-1.975" width="0.127" layer="21" curve="12.363211"/>
+<wire x1="0.7742" y1="-1.975" x2="2.4566" y2="-1.1396" width="0.127" layer="21" curve="20.926555"/>
+<wire x1="2.4566" y1="-1.1396" x2="2.8245" y2="-0.6987" width="0.127" layer="21" curve="26.573043"/>
+<wire x1="2.8245" y1="-0.6987" x2="2.9426" y2="-0.1987" width="0.127" layer="21" curve="26.564253"/>
+<wire x1="2.9426" y1="-0.1987" x2="2.9426" y2="0.2735" width="0.127" layer="21"/>
+<wire x1="-1.0574" y1="0.0374" x2="-1.7574" y2="0.0374" width="0.127" layer="21"/>
+<wire x1="-1.7574" y1="0.0374" x2="235.2426" y2="21.0274" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-1.7574" y1="0.0374" x2="235.2426" y2="-20.9526" width="0.127" layer="21" style="shortdash"/>
+<wire x1="8.9426" y1="0.9374" x2="8.9883" y2="0.7316" width="0.127" layer="21" style="dashdot"/>
+<wire x1="8.9883" y1="0.7316" x2="8.9883" y2="-0.6568" width="0.127" layer="21" style="dashdot" curve="-25.057615"/>
+<wire x1="8.9883" y1="-0.6568" x2="8.9426" y2="-0.8626" width="0.127" layer="21" style="dashdot"/>
+<wire x1="235.2426" y1="21.0374" x2="235.2426" y2="-20.9626" width="0.127" layer="21" style="dashdot" curve="-30.371682"/>
+<pad name="+" x="-6.9224" y="1.3074" drill="0.8" diameter="1.5" rot="R270"/>
+<pad name="-" x="-6.9224" y="-1.2326" drill="0.8" diameter="1.5" rot="R270"/>
+<text x="-6.5574" y="3.5374" size="1.27" layer="21" font="vector" rot="R270">+</text>
+<text x="-6.5574" y="-2.4626" size="1.27" layer="21" font="vector" rot="R270">-</text>
+<text x="-7.0718" y="-2.3504" size="0.7112" layer="21" font="vector" rot="R90">SFH 4550</text>
+<text x="6.5426" y="-2.7626" size="1.27" layer="21" rot="R355">10 degree</text>
+<wire x1="-4.7178" y1="2.0574" x2="-4.7178" y2="-1.9426" width="0.127" layer="21"/>
+<wire x1="-4.7178" y1="-1.9426" x2="-3.7178" y2="-1.9426" width="0.127" layer="21"/>
+<wire x1="-3.7178" y1="-1.9426" x2="-3.7178" y2="-1.6926" width="0.127" layer="21"/>
+<wire x1="-3.7178" y1="-1.6926" x2="-3.7178" y2="1.8074" width="0.127" layer="21"/>
+<wire x1="-3.7178" y1="1.8074" x2="-3.7178" y2="2.0574" width="0.127" layer="21"/>
+<wire x1="-3.7178" y1="2.0574" x2="-4.7178" y2="2.0574" width="0.127" layer="21"/>
+<wire x1="-3.7178" y1="1.8074" x2="-1.2154" y2="1.651" width="0.127" layer="21"/>
+<wire x1="-1.2154" y1="1.651" x2="0.2822" y2="0.0574" width="0.127" layer="21" curve="-86.407132"/>
+<wire x1="-3.7178" y1="-1.6926" x2="-1.2154" y2="-1.5362" width="0.127" layer="21"/>
+<wire x1="-1.2154" y1="-1.5362" x2="0.2822" y2="0.0574" width="0.127" layer="21" curve="86.407132"/>
+<pad name="E" x="-5.0908" y="1.3274" drill="0.8" diameter="1.5" rot="R270"/>
+<pad name="C" x="-5.0908" y="-1.2126" drill="0.8" diameter="1.5" rot="R270"/>
+<text x="-5.9558" y="-4.9182" size="1.27" layer="21" font="vector" rot="R270">E</text>
+<text x="-6.1082" y="-2.603" size="1.27" layer="21" font="vector" rot="R270">C</text>
+<hole x="0" y="0" drill="2.5"/>
 </package>
 </packages>
 <symbols>
@@ -2089,6 +2147,8 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <wire x1="0" y1="-35.56" x2="-2.54" y2="-35.56" width="0.254" layer="94"/>
 <wire x1="-2.54" y1="-35.56" x2="-2.54" y2="-27.94" width="0.254" layer="94"/>
 </symbol>
+<symbol name="LED_MOUNT">
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="TEFT4300" prefix="Q">
@@ -2615,14 +2675,14 @@ MOS dual H-bridge motor driver, 1.2A current 3.2A peak
 <devices>
 <device name="" package="ENCODER_MOUNT">
 <connects>
-<connect gate="G$1" pin="A" pad="5"/>
-<connect gate="G$1" pin="B" pad="6"/>
-<connect gate="G$1" pin="CLK" pad="2"/>
-<connect gate="G$1" pin="CS" pad="1"/>
-<connect gate="G$1" pin="GND" pad="7"/>
-<connect gate="G$1" pin="MISO" pad="3"/>
-<connect gate="G$1" pin="MOSI" pad="4"/>
-<connect gate="G$1" pin="VCC" pad="8"/>
+<connect gate="G$1" pin="A" pad="5 5_1"/>
+<connect gate="G$1" pin="B" pad="6 6_1"/>
+<connect gate="G$1" pin="CLK" pad="2 2_1"/>
+<connect gate="G$1" pin="CS" pad="1 1_1"/>
+<connect gate="G$1" pin="GND" pad="7 7_1"/>
+<connect gate="G$1" pin="MISO" pad="3 3_1"/>
+<connect gate="G$1" pin="MOSI" pad="4 4_1"/>
+<connect gate="G$1" pin="VCC" pad="8 8_1"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -2636,6 +2696,25 @@ MOS dual H-bridge motor driver, 1.2A current 3.2A peak
 </gates>
 <devices>
 <device name="" package="MOTOR_MOUNT_V2">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="LED_MOUNT" prefix="M">
+<gates>
+<gate name="Q" symbol="TEFT4300" x="0" y="12.7"/>
+<gate name="D" symbol="SFH4545" x="0" y="-12.7"/>
+</gates>
+<devices>
+<device name="" package="LED_MOUNT">
+<connects>
+<connect gate="D" pin="A" pad="+"/>
+<connect gate="D" pin="C" pad="-"/>
+<connect gate="Q" pin="C" pad="C"/>
+<connect gate="Q" pin="E" pad="E"/>
+</connects>
 <technologies>
 <technology name=""/>
 </technologies>
