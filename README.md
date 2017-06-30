@@ -27,7 +27,7 @@
 * EagleCAD 7.7
 * Autodesk Inventor 2016
 
-Development tools avalible [here](https://drive.google.com/open?id=0B6SlddUSFtelRTBFR0EwWk1qT1k)
+Development tools available [here](https://drive.google.com/open?id=0B6SlddUSFtelRTBFR0EwWk1qT1k)
 
 ### Setup ###
 
