@@ -27,12 +27,12 @@
 * EagleCAD 7.7
 * Autodesk Inventor 2016
 
-Development tools can downloaded [here](https://drive.google.com/open?id=0B6SlddUSFtelRTBFR0EwWk1qT1k)
+Development tools avalible [here](https://drive.google.com/open?id=0B6SlddUSFtelRTBFR0EwWk1qT1k)
 
 ### Setup ###
 
 * CubeMX setup
-You can get HAL libraries by going to Help->Install New Libraries->Firmware PAckage for Family STM32F4.
+You can get HAL libraries by going to Help->Install New Libraries->Firmware Package for Family STM32F4.
 ...
 
 ### Who do I talk to? ###
