@@ -10941,6 +10941,12 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 <wire x1="64.1" y1="106.1" x2="70.1" y2="100.1" width="0.254" layer="48" style="longdash"/>
 <dimension x1="-65.9" y1="106.1" x2="-65.9" y2="124.1" x3="-60.9" y3="115.1" textsize="1.9304" layer="48"/>
 </package>
+<package name="GND_CONN">
+<smd name="AGND" x="0" y="0" dx="1.27" dy="0.635" layer="1" stop="no" thermals="no" cream="no"/>
+<smd name="ANGD1" x="0" y="0" dx="1.27" dy="0.635" layer="16" stop="no" thermals="no" cream="no"/>
+<smd name="GND" x="-0.635" y="0" dx="1.27" dy="0.635" layer="1" stop="no" thermals="no" cream="no"/>
+<smd name="GND1" x="-0.635" y="0" dx="1.27" dy="0.635" layer="16" stop="no" thermals="no" cream="no"/>
+</package>
 </packages>
 <symbols>
 <symbol name="PRZELACZNIK_SUWAKOWY">
@@ -11084,6 +11090,10 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 <wire x1="7.62" y1="7.62" x2="7.62" y2="-7.62" width="0.254" layer="94" style="longdash"/>
 <wire x1="7.62" y1="-7.62" x2="-7.62" y2="-7.62" width="0.254" layer="94" style="longdash"/>
 </symbol>
+<symbol name="GND_CONN">
+<pin name="AGND" x="-2.54" y="0" length="short"/>
+<pin name="GND" x="2.54" y="0" length="short" rot="R180"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="PRZELACZNIK_SUWAKOWY">
@@ -11185,6 +11195,22 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 </gates>
 <devices>
 <device name="" package="LABIRYNT">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="GND_CONN">
+<gates>
+<gate name="G$1" symbol="GND_CONN" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="GND_CONN">
+<connects>
+<connect gate="G$1" pin="AGND" pad="AGND ANGD1"/>
+<connect gate="G$1" pin="GND" pad="GND GND1"/>
+</connects>
 <technologies>
 <technology name=""/>
 </technologies>
@@ -14035,6 +14061,8 @@ Source: www.kingbright.com</description>
 <part name="M2" library="micromouse" deviceset="LED_MOUNT" device=""/>
 <part name="L1" library="micromouse" deviceset="LABITYNT" device=""/>
 <part name="AGND36" library="supply2" deviceset="GND" device=""/>
+<part name="GND2" library="supply1" deviceset="GNDA" device="" value="GNDM"/>
+<part name="U$1" library="micromouse" deviceset="GND_CONN" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -14257,6 +14285,8 @@ VEE VSS - GND</text>
 <instance part="M2" gate="D" x="127" y="238.76"/>
 <instance part="L1" gate="A" x="243.84" y="292.1"/>
 <instance part="AGND36" gate="GND" x="45.72" y="96.52"/>
+<instance part="GND2" gate="1" x="-66.04" y="12.7"/>
+<instance part="U$1" gate="G$1" x="-66.04" y="20.32" rot="R270"/>
 </instances>
 <busses>
 </busses>
@@ -14571,6 +14601,17 @@ VEE VSS - GND</text>
 <wire x1="40.64" y1="101.6" x2="45.72" y2="101.6" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="101.6" x2="45.72" y2="99.06" width="0.1524" layer="91"/>
 <pinref part="AGND36" gate="GND" pin="GND"/>
+</segment>
+<segment>
+<pinref part="U$14" gate="G$1" pin="AGND"/>
+<wire x1="-71.12" y1="25.4" x2="-71.12" y2="27.94" width="0.1524" layer="91"/>
+<pinref part="AGND1" gate="GND" pin="GND"/>
+<wire x1="-71.12" y1="27.94" x2="-66.04" y2="27.94" width="0.1524" layer="91"/>
+<wire x1="-66.04" y1="27.94" x2="-60.96" y2="27.94" width="0.1524" layer="91"/>
+<wire x1="-60.96" y1="27.94" x2="-60.96" y2="25.4" width="0.1524" layer="91"/>
+<junction x="-66.04" y="27.94"/>
+<pinref part="U$1" gate="G$1" pin="AGND"/>
+<wire x1="-66.04" y1="22.86" x2="-66.04" y2="27.94" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="D_LS" class="0">
@@ -15177,6 +15218,11 @@ VEE VSS - GND</text>
 <junction x="96.52" y="330.2"/>
 <pinref part="D9" gate="G$1" pin="A"/>
 </segment>
+<segment>
+<pinref part="GND2" gate="1" pin="GNDA"/>
+<pinref part="U$1" gate="G$1" pin="GND"/>
+<wire x1="-66.04" y1="15.24" x2="-66.04" y2="17.78" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="N$38" class="0">
 <segment>
@@ -15694,11 +15740,6 @@ VEE VSS - GND</text>
 <wire x1="86.36" y1="55.88" x2="99.06" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="U$6" gate="G$1" pin="VSSA"/>
 <pinref part="U$13" gate="G$1" pin="AGND"/>
-</segment>
-<segment>
-<pinref part="U$14" gate="G$1" pin="AGND"/>
-<wire x1="-71.12" y1="25.4" x2="-71.12" y2="27.94" width="0.1524" layer="91"/>
-<wire x1="-71.12" y1="27.94" x2="-60.96" y2="27.94" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$14" class="0">
