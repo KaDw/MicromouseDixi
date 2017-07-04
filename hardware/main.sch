@@ -14391,6 +14391,7 @@ Details see: &lt;a href="http://katalog.we-online.de/en/pbs/WE-TVS_High_Speed/82
 <part name="D1" library="EAGLE-POWER_MAGNETICS-rev17a" deviceset="WE-TVS_824015" device=""/>
 <part name="AGND1" library="supply2" deviceset="GND" device=""/>
 <part name="+3V28" library="supply1" deviceset="+3V3" device=""/>
+<part name="C1_3" library="rcl" deviceset="C-EU" device="C0805" value="10u"/>
 </parts>
 <sheets>
 <sheet>
@@ -14511,7 +14512,7 @@ VEE VSS - GND</text>
 <instance part="C6" gate="G$1" x="96.52" y="335.28" rot="R180"/>
 <instance part="C7" gate="G$1" x="86.36" y="335.28" rot="R180"/>
 <instance part="GND1" gate="1" x="86.36" y="325.12"/>
-<instance part="Q7" gate="G$1" x="-154.94" y="142.24" rot="R90"/>
+<instance part="Q7" gate="G$1" x="-157.48" y="142.24" rot="MR90"/>
 <instance part="ON" gate="G$1" x="-172.72" y="147.32" rot="R270"/>
 <instance part="R22" gate="G$1" x="-25.4" y="-15.24" rot="R90"/>
 <instance part="R25" gate="G$1" x="-25.4" y="-30.48" rot="R90"/>
@@ -14639,6 +14640,7 @@ VEE VSS - GND</text>
 <instance part="D1" gate="G$1" x="137.16" y="-7.62"/>
 <instance part="AGND1" gate="GND" x="137.16" y="-20.32"/>
 <instance part="+3V28" gate="G$1" x="137.16" y="5.08"/>
+<instance part="C1_3" gate="G$1" x="-144.78" y="139.7"/>
 </instances>
 <busses>
 </busses>
@@ -14847,13 +14849,15 @@ VEE VSS - GND</text>
 </segment>
 <segment>
 <pinref part="Q7" gate="G$1" pin="G"/>
-<wire x1="-157.48" y1="132.08" x2="-157.48" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="-157.48" y1="132.08" x2="-144.78" y2="132.08" width="0.1524" layer="91"/>
+<wire x1="-154.94" y1="132.08" x2="-154.94" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="-154.94" y1="132.08" x2="-144.78" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="AGND33" gate="GND" pin="GND"/>
 <wire x1="-144.78" y1="129.54" x2="-144.78" y2="132.08" width="0.1524" layer="91"/>
-<wire x1="-190.5" y1="132.08" x2="-157.48" y2="132.08" width="0.1524" layer="91"/>
-<junction x="-157.48" y="132.08"/>
+<wire x1="-190.5" y1="132.08" x2="-154.94" y2="132.08" width="0.1524" layer="91"/>
+<junction x="-154.94" y="132.08"/>
 <pinref part="JP2" gate="G$1" pin="1"/>
+<pinref part="C1_3" gate="G$1" pin="2"/>
+<wire x1="-144.78" y1="134.62" x2="-144.78" y2="132.08" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="GND"/>
@@ -15638,14 +15642,13 @@ VEE VSS - GND</text>
 <wire x1="-167.64" y1="147.32" x2="-165.1" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-165.1" y1="147.32" x2="-165.1" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="-165.1" y1="149.86" x2="-180.34" y2="149.86" width="0.1524" layer="91"/>
-<pinref part="Q7" gate="G$1" pin="S"/>
-<wire x1="-160.02" y1="142.24" x2="-162.56" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="-162.56" y1="142.24" x2="-162.56" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-162.56" y1="147.32" x2="-165.1" y2="147.32" width="0.1524" layer="91"/>
 <junction x="-165.1" y="147.32"/>
 <pinref part="ON" gate="G$1" pin="5"/>
 <wire x1="-177.8" y1="147.32" x2="-180.34" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-180.34" y1="147.32" x2="-180.34" y2="149.86" width="0.1524" layer="91"/>
+<pinref part="Q7" gate="G$1" pin="D"/>
 </segment>
 </net>
 <net name="N$46" class="0">
@@ -15712,10 +15715,12 @@ VEE VSS - GND</text>
 <junction x="-111.76" y="129.54"/>
 </segment>
 <segment>
-<pinref part="Q7" gate="G$1" pin="D"/>
-<wire x1="-149.86" y1="142.24" x2="-144.78" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="SUPPLY10" gate="G$1" pin="+7V"/>
 <wire x1="-144.78" y1="142.24" x2="-144.78" y2="144.78" width="0.1524" layer="91"/>
+<pinref part="Q7" gate="G$1" pin="S"/>
+<wire x1="-152.4" y1="142.24" x2="-144.78" y2="142.24" width="0.1524" layer="91"/>
+<pinref part="C1_3" gate="G$1" pin="1"/>
+<junction x="-144.78" y="142.24"/>
 </segment>
 <segment>
 <pinref part="Q9" gate="G$1" pin="S"/>
