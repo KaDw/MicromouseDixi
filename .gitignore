@@ -43,34 +43,8 @@ eagle.epf
 *.o
 *.crf
 
-#Ignore list for Keil
-*.axf
-*.htm
-*.Inp
-*.map
-*.tra
-*.dep
-*.__i
-*.crf
-*.d
-*.o
-*.lst
-*.lnp
-*.bak
-*.Vishwas
-*.bin
-*.fed
-*._2i
-*.l1p
-*.l2p
-*.iex
-*.hex
-.#*
-*.uvguix.*
-
-#ignore Visual studio file
-*/.vs/*
-*.sdf
-MM_sym/MM_sym/x64/
-*.ilk
-*.pdb
+#SW4STM32
+/firmware/.settings/
+/firmware/Debug/
+*.cproject
+*.project
