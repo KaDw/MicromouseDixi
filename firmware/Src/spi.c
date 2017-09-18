@@ -80,7 +80,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   /* USER CODE BEGIN SPI2_MspInit 0 */
 
   /* USER CODE END SPI2_MspInit 0 */
-    /* Peripheral clock enable */
+    /* SPI2 clock enable */
     __HAL_RCC_SPI2_CLK_ENABLE();
   
     /**SPI2 GPIO Configuration    
