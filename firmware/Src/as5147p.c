@@ -24,92 +24,73 @@ uint16_t spi_parity(uint16_t x){
 	return x & 1;
 }
 
-uint16_t spi_read(uint16_t addr, uint8_t size, ENC device){
-	uint16_t a = 0xffff;
+void inline spi_select_device(ENC device, GPIO_PinState PinState){
+	if(device)
+		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port, SPI2_CS1_Pin, PinState);
+	else
+		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port, SPI2_CS2_Pin, PinState);
+}
+
+uint16_t spi_read(uint16_t addr, ENC device){
 	/* Read mode mask */
 	addr |= 0x4000;
-	if(spi_parity(addr)) // parity bit (bit 15)
+	if(spi_parity(addr)) // add parity bit (MSB)
 		addr |= 0x8000;
 
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_RESET); // CS LOW
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_RESET); // CS LOW
+	spi_select_device(device, GPIO_PIN_RESET);
 
 	/* Setup time for CS signal 350ns */
-	HAL_SPI_TransmitReceive_DMA(&hspi2, &addr, (uint8_t*)SpiRxBuffer, 1);
-	while (!(SPI2->SR & SPI_FLAG_TXE)); // check if transmit buffer has been shifted out
-	while ((SPI2->SR & SPI_FLAG_BSY));
+	HAL_SPI_Transmit(&hspi2, (uint8_t*)&addr, 1, 10);
 
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_SET); // CS HIGH
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_SET); // CS HIGH
+	spi_select_device(device, GPIO_PIN_SET);
 	// High time of CSn between two transmissions: 350ns
 
-	for(int i = 0; i < 10; i++){ // 700ns delay
+	for(int i = 0; i < 8; i++){ // 500ns delay
 		addr |= 0x4000;
 	}
 
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_RESET); // CS LOW
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_RESET); // CS LOW
+	spi_select_device(device, GPIO_PIN_RESET);
 
 	// for multi-read mode
-	for(int i = 0; i < size; i++){
-		HAL_SPI_TransmitReceive_DMA(&hspi2, &a, (uint8_t*)&SpiRxBuffer[i], 1);
+	HAL_SPI_Receive(&hspi2, (uint8_t*)SpiRxBuffer, 1, 10);
 
-		while (!(SPI2->SR & SPI_FLAG_TXE)); // check if transmit buffer has been shifted out
-		while ((SPI2->SR & SPI_FLAG_BSY)); // shouldnt be here
-	}
-	while ((SPI2->SR & SPI_FLAG_BSY)); // check BUSY flag
+	spi_select_device(device, GPIO_PIN_SET);
 
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_SET); // CS HIGH
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_SET); // CS HIGH
-
-	return addr;
+	return *SpiRxBuffer;
 }
 
 void spi_write(uint16_t addr, uint16_t data, uint8_t size, ENC device){
 	/* Write: MSB is 0*/
 	/* Setup time for CS signal 350ns */
-	// MSB is 0 + address
 
 	// every frame needs parity
-	if(spi_parity(addr)) // parity bit (bit 15)
+	if(spi_parity(addr)) // add parity bit (MSB)
 		addr |= 0x8000;
 
-	if(spi_parity(data)) // parity bit (bit 15)
+	spi_select_device(device, GPIO_PIN_RESET);
+
+	HAL_SPI_Transmit(&hspi2, &addr, 1, 10);
+
+	spi_select_device(device, GPIO_PIN_SET);
+
+	// High time of CSn between two transmissions: 350ns
+
+	// we need to wait >350ns anyway, why not calculate parity now?
+	if(spi_parity(data)) // add parity bit (MSB)
 		data |= 0x8000;
+	for(int i = 0; i < 3; i++){ // delay, address is not used anymore
+		addr |= 0x1234;
+	}
 
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_RESET); // CS LOW
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_RESET); // CS LOW
+	spi_select_device(device, GPIO_PIN_RESET);
 
-	HAL_SPI_TransmitReceive_DMA(&hspi2, &addr, SpiRxBuffer, 1);
+	HAL_SPI_Transmit(&hspi2, &data, 1, 10);
 
-	while (!(SPI2->SR & SPI_FLAG_TXE)); // check if transmit buffer has been shifted out
-	while ((SPI2->SR & SPI_FLAG_BSY));
-
-	HAL_SPI_TransmitReceive_DMA(&hspi2, &data, SpiRxBuffer, 1);
-
-	while (!(SPI2->SR & SPI_FLAG_TXE)); // check if transmit buffer has been shifted out
-	while ((SPI2->SR & SPI_FLAG_BSY)); // check BUSY flag
-
-	if(device)
-		HAL_GPIO_WritePin(SPI2_CS1_GPIO_Port,SPI2_CS1_Pin , GPIO_PIN_SET); // CS HIGH
-	else
-		HAL_GPIO_WritePin(SPI2_CS2_GPIO_Port,SPI2_CS2_Pin , GPIO_PIN_SET); // CS HIGH
+	spi_select_device(device, GPIO_PIN_SET);
 }
 
 
 uint16_t spi_read_enc(ENC device){
-
-
 }
 
 
