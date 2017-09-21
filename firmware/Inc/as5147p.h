@@ -37,6 +37,6 @@ typedef enum{
 	ENCL = 1
 }ENC;
 
-uint16_t spi_read(uint16_t addr, uint8_t size, ENC device);
+uint16_t spi_read(uint16_t addr, ENC device);
 
 #endif /* AS5147P_H_ */
