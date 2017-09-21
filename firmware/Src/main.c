@@ -46,6 +46,8 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include "as5147p.h"
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -96,16 +98,18 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM2_Init();
   MX_TIM5_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
+  MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
+//  if(spi_read(AS5147P_ERRFL, 1, ENCL) == 0x4001)
+//	  spi_read(AS5147P_DIAAGC, 1, ENCL);
+//  HAL_Delay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -115,7 +119,8 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+	  spi_read(AS5147P_DIAAGC, 1, ENCL);
+	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 
