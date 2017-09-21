@@ -46,10 +46,8 @@
 #include "usart.h"
 #include "gpio.h"
 
-#include "as5147p.h"
-
 /* USER CODE BEGIN Includes */
-
+#include "as5147p.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -107,9 +105,7 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-//  if(spi_read(AS5147P_ERRFL, 1, ENCL) == 0x4001)
-//	  spi_read(AS5147P_DIAAGC, 1, ENCL);
-//  HAL_Delay(100);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -119,7 +115,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  spi_read(AS5147P_DIAAGC, 1, ENCL);
+	  spi_read(AS5147P_DIAAGC, ENCL);
 	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
