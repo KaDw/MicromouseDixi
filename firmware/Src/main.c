@@ -48,6 +48,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "as5147p.h"
+#include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -66,7 +67,8 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+uint8_t I2C1_Buffer_Rx[6];
+uint8_t I2C1_Buffer_Tx[6];
 /* USER CODE END 0 */
 
 int main(void)
@@ -105,7 +107,9 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
+  mpu_selftest();
+  HAL_Delay(100);
+  //mpu_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,10 +117,7 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-
   /* USER CODE BEGIN 3 */
-	  spi_read(AS5147P_DIAAGC, ENCL);
-	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 
