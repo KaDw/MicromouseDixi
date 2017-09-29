@@ -65,6 +65,10 @@ eagle.epf
 *.l2p
 *.iex
 *.hex
+*.elf
+*.bin
+*.exe
+*.zip
 .#*
 *.uvguix.*
 
