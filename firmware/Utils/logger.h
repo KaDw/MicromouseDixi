@@ -1,4 +1,4 @@
-// author: Karol Trzciński
+﻿// author: Karol Trzciński
 // date: 2017
 //
 // multi buffered logger implementation
@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "logger_conf.h" // must be before logger_conf.h
+#include "port/logger_port.h"
 
 
 #define LOG_CRITICAL(...)   logger_log('C',__VA_ARGS__)
