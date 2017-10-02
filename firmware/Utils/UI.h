@@ -1,7 +1,7 @@
-//
+///
 /// author: Karol Trzciński
-// date: 10-2017
-//
+/// date: 10-2017
+///
 
 #ifndef __UI_H__
 #define __UI_H__
