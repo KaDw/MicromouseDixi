@@ -15,6 +15,9 @@
 #include <string.h>
 #include "port/logger_port.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define LOG_CRITICAL(...)   logger_log('C',__VA_ARGS__)
 #define LOG_ERR(...)        logger_log('E',__VA_ARGS__)
@@ -49,4 +52,7 @@ void logger_log(int type, const char* frm, ...);
 // wywolywane z glownego watku
 void logger_process();
 
+#ifdef __cplusplus
+}
+#endif
 #endif

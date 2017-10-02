@@ -1,10 +1,14 @@
-// author: Karol Trzciński
+﻿// author: Karol Trzciński
 // date: 2017
 //
 // multi buffered logger implementation
 // one buffer is for fast writing from interrupts or main thread
 // others buffers are for sendind via UART, USB, SD... from main thread
 // buffers automaticaly changes before sending starts
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdarg.h>
 #include "logger.h"
@@ -233,3 +237,7 @@ void logger_process()
   rptr->busy = false;
   rptr->len = 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

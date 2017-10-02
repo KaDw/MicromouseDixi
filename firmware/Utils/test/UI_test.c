@@ -1,3 +1,8 @@
+///
+/// author: Karol Trzciński
+/// date: 10-2017
+///
+
 #include <stdio.h>
 #include "UI.h"
 
@@ -27,7 +32,7 @@ void main()
 		UI_Process();
 	}
 	UI_Process();
-	printf("\tpierwsza zmiana stanu\n");	
+	printf("\tpierwsza zmiana stanu\n");
 	for (int i = min; i < 2*max; ++i) {
 		UI_Process();
 	}

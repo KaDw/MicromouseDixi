@@ -1,3 +1,7 @@
+///
+/// author: Karol Trzciński
+/// date: 10-2017
+///
 ﻿
 #ifndef __LOGGER_PORT_H__
 #define __LOGGER_PORT_H__
