@@ -1,4 +1,13 @@
+///
+/// author: Karol TrzciÅ„ski
+/// date: 10-2017
+///
+
 #include "UI.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if UI_USE_LEDS
 
@@ -28,7 +37,7 @@ static void _UI_LedBlinkingProcess(int i, int period)
 {
 	int temp = 2 * (_LedsStat[i].counter % period);
 
-	// gdy jest to 'gorna polowa' to led powinien byc wy³¹czony
+	// gdy jest to 'gorna polowa' to led powinien byc wyï¿½ï¿½czony
 	if (temp > period && _LedsStat[i].isOn == ON)
 	{
 		_UI_LedPinSet(i, OFF);
@@ -56,8 +65,8 @@ static void _UI_ProcessLED()
 			break;
 		}
 
-		// LED'y w stanie FLASH zliczaja w dó³
-		// pozosta³e w górê
+		// LED'y w stanie FLASH zliczaja w dï¿½ï¿½
+		// pozostaï¿½e w gï¿½rï¿½
 		if ((_LedsStat[i].state & _UI_LEDS_COUNTDOWN) == 0) {
 			++_LedsStat[i].counter;
 		}
@@ -129,7 +138,7 @@ static void _UI_BuzzerBlinkingProcess(int period)
 {
 	int temp = 2 * (_BuzzerStat.counter % period);
 
-	// gdy jest to 'gorna polowa' to buzzer powinien byc wy³¹czony
+	// gdy jest to 'gorna polowa' to buzzer powinien byc wyï¿½ï¿½czony
 	if (temp > period && _BuzzerStat.isOn == ON)
 	{
 		_UI_BuzzerPinSet(OFF);
@@ -155,7 +164,7 @@ static void _UI_ProcessBuzzer()
 		break;
 	}
 
-	// sprawdz czy zliczaæ w dó³ czy w górê
+	// sprawdz czy zliczaï¿½ w dï¿½ï¿½ czy w gï¿½rï¿½
 	if ((_BuzzerStat.state & _UI_BUZZER_COUNTDOWN) == 0) {
 		++_BuzzerStat.counter;
 	}
@@ -203,7 +212,7 @@ void UI_SetBuzzer(int UI_BUZZER_ST)
 void UI_Init()
 {
 #if UI_USE_LEDS
-	// wy³¹cz wszytskie LED'y i buzzer
+	// wyï¿½ï¿½cz wszytskie LED'y i buzzer
 	for (int i = 0; i < LED_COUNT; ++i)
 	{
 		_UI_LedPinSet(i, OFF);
@@ -228,4 +237,6 @@ void UI_Process()
 
 }
 
-
+#ifdef __cplusplus
+}
+#endif

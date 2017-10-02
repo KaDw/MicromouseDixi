@@ -1,3 +1,8 @@
+///
+/// author: Karol Trzciński
+/// date: 10-2017
+///
+
 #include <stdio.h>
 #include "UI.h"
 

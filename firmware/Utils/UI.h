@@ -1,7 +1,17 @@
-#pragma once
+//
+/// author: Karol Trzciński
+// date: 10-2017
+//
+
+#ifndef __UI_H__
+#define __UI_H__
 
 #include "common.h"
 #include "port/UI_port.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if UI_USE_LEDS
 #define _UI_LEDS_COUNTDOWN	0x80
@@ -31,3 +41,7 @@ void UI_SetBuzzer(int UI_BUZZER_ST);
 void UI_Init();
 void UI_Process();
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#endif
