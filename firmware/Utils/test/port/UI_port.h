@@ -6,6 +6,8 @@
 #ifndef __UI_PORT_H__
 #define __UI_PORT_H__
 
+#include <stdint.h>
+
 #define UI_USE_BUZZER 1
 #define UI_USE_LEDS	  1
 
