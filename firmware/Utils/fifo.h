@@ -1,5 +1,5 @@
 ///
-/// author: Karol Trzciński
+/// author: Karol Trzciński, Poland
 /// date: 2017
 ///
 /// reference: https://github.com/jeethridge/embedded-c-generic-fifo
@@ -62,7 +62,7 @@ extern "C" {
 
 // combination of fifo_typedef and fifo_init queue BUF of type T
 // also create in local scope buffer of capacity S
-#define fifo_create(BUF, T, S) \
+#define fifo_create(T, BUF, S) \
     fifo_typedef(T, BUF##_q);\
     T _##BUF##_buff[S];\
     BUF##_q BUF = {\
@@ -76,10 +76,10 @@ extern "C" {
 
 
 // write to fifo BUF
-#define fifo_push(BUF, PELEM)\
+#define fifo_push(BUF, ELEM)\
   do {\
     if(!fifo_is_full(BUF)) {\
-      (BUF)->elems[(BUF)->end]=(*PELEM);\
+      (BUF)->elems[(BUF)->end]=(ELEM);\
       (BUF)->write_count++;\
       (BUF)->end=((BUF)->end+1)%(BUF)->size;\
     }\
@@ -87,10 +87,10 @@ extern "C" {
 
 
 // read from fifo BUF and delete readed element
-#define fifo_pop(BUF, PELEM)\
+#define fifo_pop(BUF, ELEM)\
   do {\
     if(!fifo_is_empty(BUF)){\
-      (*PELEM)=(BUF)->elems[(BUF)->start];\
+      (ELEM)=(BUF)->elems[(BUF)->start];\
       (BUF)->read_count++;\
       (BUF)->start=((BUF)->start+1)%(BUF)->size;\
     } \
@@ -98,10 +98,10 @@ extern "C" {
 
 
 // read from fifo BUF without deleting this element
-#define fifo_peek(BUF,PELEM,INDEX)\
+#define fifo_peek(BUF,ELEM,INDEX)\
   do {\
     if(INDEX<fifo_count(BUF)){ \
-      (*PELEM)=(BUF)->elems[((BUF)->start+INDEX)%((BUF)->size)];\
+      (ELEM)=(BUF)->elems[((BUF)->start+INDEX)%((BUF)->size)];\
     }\
   } while(0)
 
