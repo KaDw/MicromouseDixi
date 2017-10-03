@@ -55,6 +55,16 @@ int main()
     fifo_pop(&points, &data);
     printf("\nfifo pop after overflow: {%d,2} == {%d, %d}\n", _Q1_SIZE, data.x, data.y);
 
+    printf("\n fifo_create shortcut\n");
+    fifo_create(pozycje, point_t, 6);
+
+    for(int i = 0; i < pozycje.size+3; ++i)
+    {
+      printf("after %d push the size of fifo is %d\n", i, fifo_count(&points));
+      data.x = i;
+	    fifo_push(&points, &data);
+    }
+
 }
 
 #ifdef __cplusplus

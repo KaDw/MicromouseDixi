@@ -4,6 +4,11 @@
 ///
 /// reference: https://github.com/jeethridge/embedded-c-generic-fifo
 ///
+/// description: macro based fifo implementation
+///              it is possible to make many fifo with different size and data type
+///              writing (push) when buffer is full will be ommitted
+///              reading (only pop) from empty buffer will be ommited
+///
 // usage:
 // typedef struct { int x; int y; } myDataStruct_t;
 // #define myDataStructArraySize 15
@@ -29,6 +34,8 @@
 extern "C" {
 #endif
 
+
+// define fifo data type NAME, holding data in type T
 #define fifo_typedef(T, NAME) \
   typedef struct { \
     int size; \
@@ -39,6 +46,9 @@ extern "C" {
     T* elems; \
   } NAME
 
+
+// fill fields of fifo instance BUF with default values
+// point to buffer BUFMEM with capacity of S elements
 #define fifo_init(BUF, S, BUFMEM) \
   do {\
     (BUF)->size = S;\
@@ -49,17 +59,23 @@ extern "C" {
     (BUF)->elems = BUFMEM;\
   } while (0)
 
+
+// combination of fifo_typedef and fifo_init queue BUF of type T
+// also create in local scope buffer of capacity S
 #define fifo_create(BUF, T, S) \
     fifo_typedef(T, BUF##_q);\
     T _##BUF##_buff[S];\
-    BUFF##_q ##BUFF = {\
-      .size = S;\
-      .start = 0;\
-      .end = 0;\
-      .read_count = 0;\
-      .write_count = 0;\
-      .elems = _##BUF##_buff/}
+    BUF##_q BUF = {\
+      .size = S,\
+      .start = 0,\
+      .end = 0,\
+      .read_count = 0,\
+      .write_count = 0,\
+      .elems = _##BUF##_buff\
+    }
 
+
+// write to fifo BUF
 #define fifo_push(BUF, PELEM)\
   do {\
     if(!fifo_is_full(BUF)) {\
@@ -69,6 +85,8 @@ extern "C" {
     }\
   } while(0)
 
+
+// read from fifo BUF and delete readed element
 #define fifo_pop(BUF, PELEM)\
   do {\
     if(!fifo_is_empty(BUF)){\
@@ -78,6 +96,8 @@ extern "C" {
     } \
   } while(0)
 
+
+// read from fifo BUF without deleting this element
 #define fifo_peek(BUF,PELEM,INDEX)\
   do {\
     if(INDEX<fifo_count(BUF)){ \
@@ -85,6 +105,8 @@ extern "C" {
     }\
   } while(0)
 
+
+// make fifo empty
 #define fifo_flush(BUF)\
   do { \
     (BUF)->start = 0; \
@@ -93,8 +115,16 @@ extern "C" {
     (BUF)->write_count=0; \
   } while(0)
 
+
+// return number of elements in fifo BUF
 #define fifo_count(BUF) ((BUF)->write_count-(BUF)->read_count)
+
+
+// compare fifo count to his size
 #define fifo_is_full(BUF) (fifo_count(BUF)==(BUF)->size)
+
+
+// compare fifo count to zero
 #define fifo_is_empty(BUF) (fifo_count(BUF)==0)
 
 #ifdef __cplusplus
