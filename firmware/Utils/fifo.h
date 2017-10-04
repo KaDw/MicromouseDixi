@@ -125,7 +125,7 @@ extern "C" {
 
 
 // compare fifo count to zero
-#define fifo_is_empty(BUF) (fifo_count(BUF)==0)
+#define fifo_is_empty(BUF) ((BUF)->write_count==(BUF)->read_count)
 
 #ifdef __cplusplus
 }
