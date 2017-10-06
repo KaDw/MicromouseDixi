@@ -1,3 +1,6 @@
+# specific
+firmware/Src/main.c
+
 # Ignore list for Eagle, a PCB layout tool
 
 # Backup files
