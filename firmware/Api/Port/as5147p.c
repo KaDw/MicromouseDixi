@@ -1,6 +1,7 @@
 #include "as5147p.h"
 #include "gpio.h"
 #include "spi.h"
+#include "utils/logger.h"
 
 
 // AS5147P is using even parity
@@ -87,14 +88,15 @@ uint8_t enc_check(ENC device){
 	uint16_t temp;
 	temp = spi_read(AS5147P_DIAAGC, device);
 	if(temp & 0x0400){
-		//log error: magnetic field strength too high
+		LOG_ERR("encoder magnetic field strength too high");
 		return 2;
 	}
 	else if(temp & 0x0800){
-		//log error: magnetic field strength too low
+		LOG_ERR("AS5147P magnetic field strength too low");
 		return 1;
 	}
 
+	LOG_INFO("AS5147P magents field strength OK");
 	return 0;
 }
 

@@ -1,6 +1,7 @@
 #include <math.h>
 #include "mpu6050.h"
 #include "i2c.h"
+#include "utils/logger.h"
 
 
 //uint8_t i2cRxBuffer[6];
@@ -16,25 +17,45 @@ uint8_t mpu_selftest(){
 	uint8_t selfTest[6];
 	float factoryTrim[6];
 
-	if(HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)MPU6050_ADDRESS, 5, 100) != HAL_OK)
+	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_WHO_AM_I;
+	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100)!= HAL_OK){
+		LOG_CRITICAL("failed to transmit");
 		return 1;
+	}
+
+	if(HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, rawData, 4, 100) != HAL_OK){
+		LOG_CRITICAL("failed to receive");
+		return 1;
+	}
+
+	if(rawData[0] != 0x68){ // WHO_I_AM always 0x68
+		LOG_CRITICAL("MPU6050 not responding");
+		return 1;
+	}
+
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_GYRO_CONFIG;
 	i2cTxBuffer[1] = 0xE0; // enable self test, range +/- 250deg/s
 	i2cTxBuffer[2] = (uint8_t)MPU6050_REG_ACCEL_CONFIG;
 	i2cTxBuffer[3] = 0xF0; // enable self test, range+/- 8 g
 
-	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100)!= HAL_OK)
+	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100)!= HAL_OK){
+		LOG_CRITICAL("failed to transmit");
 		return 1;
+	}
 
 	HAL_Delay(250);
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_SELF_TEST_X;
-	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100) != HAL_OK)
+	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100) != HAL_OK){
+		LOG_CRITICAL("failed to transmit");
 		return 1;
+	}
 
-	if(HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, rawData, 4, 100) != HAL_OK)
+	if(HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, rawData, 4, 100) != HAL_OK){
+		LOG_CRITICAL("failed to receive");
 		return 1;
+	}
 
 	// acc test result (5 bit)
 	selfTest[0] = (rawData[0] >> 3) | (rawData[3] & 0x30) >> 4 ; // X
@@ -55,9 +76,13 @@ uint8_t mpu_selftest(){
 	factoryTrim[5] =  ( 25.0*131.0)*(powf( 1.046 , ((float)selfTest[5] - 1.0) ));             // FT[Zg] factory trim calculation
 
 	for (int i = 0; i < 6; i++) {
-		if((100.0 + 100.0*((float)selfTest[i] - factoryTrim[i])/factoryTrim[i]) > 1.0f)
+		if((100.0 + 100.0*((float)selfTest[i] - factoryTrim[i])/factoryTrim[i]) > 1.0f){
+			LOG_CRITICAL("MPU6050 selftest failed");
 			return 1;
+		}
 	}
+
+	LOG_INFO("MPU6050 selftest passed");
 
 	return 0;
 
@@ -88,18 +113,13 @@ void mpu_init(){
 
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100);
 
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_INT_ENABLE;
-	i2cTxBuffer[1] = 0x01;
-	i2cTxBuffer[2] = (uint8_t)MPU6050_REG_INT_PIN_CFG;
-	i2cTxBuffer[3] = 0x08; // MPU6050_SCALE_250DPS
-
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100);
-
 }
 
 void mpu_calibrate(){
 	uint8_t i2cTxBuffer[4];
-	uint8_t data[8];
+	uint8_t data[12];
+
+	LOG_INFO("MPU6050 calibration started...");
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_PWR_MGMT_1; // reset device
 	i2cTxBuffer[1] = 0x80;
@@ -107,14 +127,9 @@ void mpu_calibrate(){
 
 	HAL_Delay(200);
 
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_PWR_MGMT_1;
-	i2cTxBuffer[1] = 0x03; // PLL with z axis gyroscope reference, disable sleep mode
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
+	// call mpu_init before calibration, to be sure do it again
+	mpu_init();
 
-	HAL_Delay(200);
-
-//	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_PWR_MGMT_1;
-//	i2cTxBuffer[1] = 0x00; // turn on internal clock
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_USER_CTRL;
 	i2cTxBuffer[1] = 0x0C; // reset fifo and dmp
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
@@ -125,7 +140,7 @@ void mpu_calibrate(){
 	i2cTxBuffer[2] = (uint8_t)MPU6050_REG_FIFO_EN;
 	i2cTxBuffer[3] = 0x78; // en z-axis for gyro and acc for fifo
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100);
-	// accumulate 100 samples in FIFO
+	// accumulate samples in FIFO
 	HAL_Delay(80);
 
 	// disable fifo
@@ -145,19 +160,16 @@ void mpu_calibrate(){
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_R_W;
 	for(uint16_t i = 0; i < fifoCount+1; i++){
-		//int16_t accel_temp[3] = {0, 0, 0}, gyro_temp[3] = {0, 0, 0};
 		// read from fifo
 		HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100);
 		HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, data, 12, 100);
 
-	    //accel_temp[0] = (int16_t) (((int16_t)data[0] << 8) | data[1]  ) ;  // Form signed 16-bit integer for each sample in FIFO
-	    //accel_temp[1] = (int16_t) (((int16_t)data[2] << 8) | data[3]  ) ;
-	    //accel_temp[2] = (int16_t) (((int16_t)data[4] << 8) | data[5]  ) ;
-	    //gyro_temp[0]  = (int16_t) (((int16_t)data[6] << 8) | data[7]  ) ; // we need z-axis gyro only
 	    accel_offset[0] += (int32_t) ((((int16_t)data[0]) << 8) | data[1] );
 	    accel_offset[1] += (int32_t) ((((int16_t)data[2]) << 8) | data[3] ) ;
 	    accel_offset[2] += (int32_t) ((((int16_t)data[4]) << 8) | data[5] ) ;
-	    gyro_offset[0]  += (int32_t) ((((int16_t)data[6]) << 8) | data[7] ) ; // we need z-axis gyro only
+	    gyro_offset[0]  += (int32_t) ((((int16_t)data[6]) << 8) | data[7] ) ;
+	    gyro_offset[1]  += (int32_t) ((((int16_t)data[8]) << 8) | data[9] ) ;
+	    gyro_offset[2]  += (int32_t) ((((int16_t)data[10]) << 8) | data[11] ) ;
 
 	    //accel_offset[0] += accel_temp[0];
 	}
@@ -165,17 +177,37 @@ void mpu_calibrate(){
 	accel_offset[1] /= fifoCount;
 	accel_offset[2] /= fifoCount;
 	gyro_offset[0] /= fifoCount;
+	gyro_offset[1] /= fifoCount;
+	gyro_offset[2] /= fifoCount;
 
 	// remove gravity from z-axis
-	if(accel_offset[2]  > 0L)
+	if(accel_offset[2] > 0L)
 		accel_offset[2] -= MPU6050_ACCEL_SENSITIVITY;
 	else
 		accel_offset[2] +=  MPU6050_ACCEL_SENSITIVITY;
-	// offset regs are 16 bits
-	//i2cTxBuffer[0] = ((int16_t)(accel_offset[0]) >> 8) & 0x00FF); // H
-	//i2cTxBuffer[0] = (int16_t)(accel_offset[0]); // H
 
-	// configure offset registers
+	for(uint8_t i=0; i < 3; i++) {
+		accel_offset[i]= (-accel_offset[i]);
+		gyro_offset[i] = (-gyro_offset[i]);
+	}
+
+	data[0] = (accel_offset[0] >> 8) & 0xff;
+	data[1] = accel_offset[0] & 0xff;
+	data[2] = (accel_offset[1] >> 8) & 0xff;
+	data[3] = accel_offset[1] & 0xff;
+	data[4] = (accel_offset[2] >> 8) & 0xff;
+	data[5] = accel_offset[2] & 0xff;
+	data[7] = (gyro_offset[0] >> 8) & 0xff;
+	data[8] = gyro_offset[0] & 0xff;
+	data[9] = (gyro_offset[1] >> 8) & 0xff;
+	data[10] = gyro_offset[1] & 0xff;
+	data[11] = (gyro_offset[2] >> 8) & 0xff;
+	data[12] = gyro_offset[2] & 0xff;
+
+	// transmit to offst registers
+	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, data, 12, 100);
+
+	LOG_INFO("MPU6050 calibration process finished");
 
 }
 
@@ -212,6 +244,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 	HAL_I2C_Master_Receive_DMA(&hi2c1, MPU6050_ADDRESS, raw_data, 12);
 }
 
+// TODO check if HAL_I2C_MasterRxCpltCallback is called when all data is received
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2cHandle){
 
 	a_data.x = (float)((((int16_t)raw_data[0]) << 8) | raw_data[1])/MPU6050_ACCEL_SENSITIVITY;

@@ -122,7 +122,7 @@
 #define MPU6050_REG_FIFO_COUNTH      0x72
 #define MPU6050_REG_FIFO_COUNTL      0x73
 #define MPU6050_REG_FIFO_R_W         0x74
-#define MPU6050_REG_WHO_AM_I         0x75
+#define MPU6050_REG_WHO_AM_I         0x75 /* always 0x68 */
 
 typedef enum
 {
