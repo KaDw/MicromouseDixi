@@ -5,6 +5,7 @@
 
 #ifndef __LOGGER_PORT_H__
 #define __LOGGER_PORT_H__
+#include "common_port.h"
 
 /// ilosc buforow sluzacych przechowywaniu sformatowanych logow
 #define LOGGER_BUF_COUNT 2
