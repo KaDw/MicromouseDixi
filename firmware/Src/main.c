@@ -47,8 +47,8 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "as5147p.h"
-#include "mpu6050.h"
+#include "port/as5147p.h"
+#include "port/mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -67,8 +67,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-uint8_t I2C1_Buffer_Rx[6];
-uint8_t I2C1_Buffer_Tx[6];
+float test[6];
 /* USER CODE END 0 */
 
 int main(void)
@@ -107,9 +106,9 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-  mpu_selftest();
-  HAL_Delay(100);
-  //mpu_init();
+
+  if(mpu_selftest())
+	  while(1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,7 +116,11 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
+
   /* USER CODE BEGIN 3 */
+	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+	  HAL_Delay(100);
+
   }
   /* USER CODE END 3 */
 
