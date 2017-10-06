@@ -1,5 +1,5 @@
 ///
-/// author: Karol Trzciński
+/// author: Karol Trzcinski
 /// date: 10-2017
 ///
 
