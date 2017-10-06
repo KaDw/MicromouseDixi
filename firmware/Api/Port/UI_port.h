@@ -5,8 +5,9 @@
 
 #ifndef __UI_PORT_H__
 #define __UI_PORT_H__
-
 #include <stdint.h>
+#include "common_port.h"
+
 
 #define UI_USE_BUZZER 1
 #define UI_USE_LEDS	  1
@@ -25,8 +26,8 @@
 
 typedef struct
 {
-	uint32_t pin;
-	char port;
+	uint16_t pin;
+	GPIO_TypeDef* port;
 	char inv; // inverted pin logic (Low-On, High-Off)
 } UI_Led_t;
 

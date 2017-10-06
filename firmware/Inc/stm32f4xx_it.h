@@ -40,6 +40,8 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -48,10 +50,7 @@
 void SVC_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
-void EXTI2_IRQHandler(void);
-void USART1_IRQHandler(void);
 void DMA2_Stream0_IRQHandler(void);
-void DMA2_Stream2_IRQHandler(void);
 
 #ifdef __cplusplus
 }

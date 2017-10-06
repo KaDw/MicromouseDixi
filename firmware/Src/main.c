@@ -47,6 +47,9 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include "Utils/fifo.h"
+fifo_create(int,odczyty_q,1024);
+#include "Utils/logger.h"
 
 /* USER CODE END Includes */
 
@@ -73,6 +76,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	logger_init();
 
   /* USER CODE END 1 */
 
@@ -96,13 +100,13 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_TIM2_Init();
   MX_TIM5_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_TIM3_Init();
+  MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
 
