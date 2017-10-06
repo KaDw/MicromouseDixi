@@ -49,6 +49,8 @@
 /* USER CODE BEGIN Includes */
 #include "port/as5147p.h"
 #include "port/mpu6050.h"
+#include "utils/logger.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -74,6 +76,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	logger_init();
 
   /* USER CODE END 1 */
 
