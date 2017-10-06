@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "port/logger_port.h"
+#include "Port/logger_port.h"
 
 #ifdef __cplusplus
 extern "C" {
