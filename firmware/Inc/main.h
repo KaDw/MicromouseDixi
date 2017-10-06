@@ -108,8 +108,6 @@
 #define ENCR_B_GPIO_Port GPIOB
 #define SPI2_CS2_Pin GPIO_PIN_4
 #define SPI2_CS2_GPIO_Port GPIOB
-#define MPU_INT_Pin GPIO_PIN_7
-#define MPU_INT_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -43,9 +43,47 @@ eagle.epf
 *.o
 *.crf
 
+<<<<<<< HEAD
 #SW4STM32
 /firmware/.settings/
 /firmware/.mxproject/
 /firmware/Debug/
 *.cproject
 *.project
+=======
+#Ignore list for Keil
+*.axf
+*.htm
+*.Inp
+*.map
+*.tra
+*.dep
+*.__i
+*.crf
+*.d
+*.o
+*.lst
+*.lnp
+*.bak
+*.Vishwas
+*.bin
+*.fed
+*._2i
+*.l1p
+*.l2p
+*.iex
+*.hex
+*.elf
+*.bin
+*.exe
+*.zip
+.#*
+*.uvguix.*
+
+#ignore Visual studio file
+*/.vs/*
+*.sdf
+MM_sym/MM_sym/x64/
+*.ilk
+*.pdb
+>>>>>>> 92290501846af1868707fe24cbaca739bcac14f7
