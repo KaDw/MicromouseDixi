@@ -1,9 +1,3 @@
-/*
- * as5147p.h
- *
- *  Created on: 20.09.2017
- *      Author: Karol
- */
 #include "stm32f4xx.h"
 
 #ifndef AS5147P_H_
@@ -25,18 +19,18 @@
 #define AS5147P_SETTINGS2	0x0019
 #define AS5147P_RED			0x001A
 
-//			register		read	parity
-#define AS5147P_ANGLE | 0x4000 | 0x8000
+//						register		read	parity
+#define AS5147P_ANGLE AS5147P_ANGLECOM | 0x4000 | 0x8000
 
-
-extern uint16_t SpiTxBuffer[2];
-extern uint16_t SpiRxBuffer[2];
 
 typedef enum{
 	ENCR = 0,
 	ENCL = 1
 }ENC;
 
-uint16_t spi_read(uint16_t addr, ENC device);
+uint8_t enc_check(ENC device);
+uint16_t spi_read_enc(ENC device);
+
+
 
 #endif /* AS5147P_H_ */

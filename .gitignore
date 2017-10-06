@@ -45,6 +45,7 @@ eagle.epf
 
 #SW4STM32
 /firmware/.settings/
+/firmware/.mxproject/
 /firmware/Debug/
 *.cproject
 *.project
