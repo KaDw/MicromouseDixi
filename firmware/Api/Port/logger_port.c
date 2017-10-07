@@ -5,25 +5,45 @@
 
 #include "Utils/logger.h"
 
-mutex_state_t p_logger_mutex_on()
+
+extern UART_HandleTypeDef* huart3;
+#define LOGGER_UART huart3
+
+void logger_port_TxCplt(struct __DMA_HandleTypeDef * hdma)
 {
-  return 0;
+	logger_sendCompleted();
 }
 
-void p_logger_mutex_off(mutex_state_t st)
+void logger_port_init()
 {
-
+	LOGGER_UART->hdmatx->XferCpltCallback = logger_port_TxCplt;
 }
 
-bool p_logger_send(char* ptr, int len)
+mutex_state_t logger_port_mutex_on()
 {
-	while (len > 0) {
-		//len -= printf("%s", ptr);
+  mutex_state_t st = __get_PRIMASK();
+  __disable_irq();
+  return st;
+}
+
+void logger_port_mutex_off(mutex_state_t st)
+{
+	if(st){
+		__enable_irq();
 	}
-  return true;
 }
 
-void p_logger_assert_fun(int line, const char* msg)
+
+bool logger_port_send(char* ptr, int len)
+{
+	if((LOGGER_UART->hdmatx->Instance->CR & DMA_SxCR_EN) != 0) {
+		return true; // wysylanie w trakcie - nie udalo sie wyslac tej paczki
+	}
+	HAL_UART_Transmit_DMA(LOGGER_UART, (uint8_t*)ptr, len);
+	return false; // false - wiadomosc jest wysylana
+}
+
+void logger_port_assert_fun(int line, const char* msg)
 {
 	//printf("Assertion failed, line: %d, msg:%s\n", line, msg);
   while(1){
@@ -32,8 +52,10 @@ void p_logger_assert_fun(int line, const char* msg)
 
 // przypisz wskazniki funkcji
 logger_fun_t logger_fun = {
-  .mutex_on = p_logger_mutex_on,
-  .mutex_off = p_logger_mutex_off,
-  .send = p_logger_send,
-  .assert_fun = p_logger_assert_fun
+  .mutex_on = logger_port_mutex_on,
+  .mutex_off = logger_port_mutex_off,
+  .send = logger_port_send,
+  .assert_fun = logger_port_assert_fun
 };
+
+

@@ -15,15 +15,16 @@
 /// wyslania poprzednich we wszystkie miejsca docelowe
 #define LOGGER_BUF_SIZE 120
 
-
+/// when 1 then each log will be in only one buffer -
+/// logs won't be divided into 2 buffers
 #define LOGGER_CONTINOUS_LOG 1
-/*
-/// bufor urzywany do formatowania pojedynczych logow
-/// za pomoca funkcji snprintf
-#define LOGGER_BUF_TEMP_SIZE 64*/
 
 /// typ zwracany przez funcje odpowiedzialna za
 /// uruchamianie mutexow dla loggera
 typedef int mutex_state_t;
+
+
+/// platform dependent logger initializaction
+void logger_init_port();
 
 #endif

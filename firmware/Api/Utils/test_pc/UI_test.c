@@ -4,9 +4,9 @@
 ///
 
 #include <stdio.h>
-#include "UI.h"
+#include "../UI.h"
 
-void main()
+void UI_test_main()
 {
 	printf("=========\n");
 	printf("=UI_test=\n");

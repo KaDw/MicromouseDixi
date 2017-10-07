@@ -19,7 +19,7 @@ point_t _Q1_BUFF[_Q1_SIZE];
 
 fifo_typedef(point_t, point_q);
 
-int main()
+int fifo_test_main()
 {
   	printf("=================\n");
   	printf(" FIFO test start\n");

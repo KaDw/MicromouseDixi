@@ -20,7 +20,7 @@ point_t _Q1_BUFF[_Q1_SIZE];
 
 ring_typedef(point_t, point_q);
 
-int main()
+int ring_test_main()
 {
   	printf("=================\n");
   	printf(" ring test start\n");

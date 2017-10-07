@@ -4,7 +4,7 @@
 ///
 
 #include <stdio.h>
-#include "UI.h"
+#include "../../UI.h"
 
 #if UI_USE_LEDS
 // fill leds port data
@@ -14,7 +14,7 @@ const UI_Led_t UI_Led[] = {
 	{ .pin = 2,.port = 'F',.inv = OFF } // LED_F
 };
 
-void UI_LedPinHigh(const UI_Led_t* pLed)
+void UI_LedPinOn(const UI_Led_t* pLed)
 {
 	printf("Led H %c:%d ", pLed->port, pLed->pin);
 	if (pLed->inv == OFF)
@@ -27,7 +27,7 @@ void UI_LedPinHigh(const UI_Led_t* pLed)
 	}
 }
 
-void UI_LedPinLow(const UI_Led_t* pLed)
+void UI_LedPinOff(const UI_Led_t* pLed)
 {
 	printf("Led L %c:%d ", pLed->port, pLed->pin);
 	if (pLed->inv != OFF)
@@ -45,7 +45,7 @@ void UI_LedPinLow(const UI_Led_t* pLed)
 #if UI_USE_BUZZER
 const UI_Buzzer_t UI_Buzzer = { .pin = 1,.port = 'B',.inv = OFF };
 
-void UI_BuzzerPinHigh(const UI_Buzzer_t* pBuzzer)
+void UI_BuzzerPinOn(const UI_Buzzer_t* pBuzzer)
 {
 	printf("Buzzer H %c:%d ", pBuzzer->port, pBuzzer->pin);
 	if (pBuzzer->inv == OFF)
@@ -57,7 +57,7 @@ void UI_BuzzerPinHigh(const UI_Buzzer_t* pBuzzer)
 		printf("(OFF)\n");
 	}
 }
-void UI_BuzzerPinLow(const UI_Buzzer_t* pBuzzer)
+void UI_BuzzerPinOff(const UI_Buzzer_t* pBuzzer)
 {
 	printf("Buzzer L %c:%d ", pBuzzer->port, pBuzzer->pin);
 	if (pBuzzer->inv != OFF)

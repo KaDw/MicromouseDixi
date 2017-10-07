@@ -41,8 +41,8 @@ extern const UI_Led_t UI_Led[]; // in UI_port.c
 #define LED_COUNT 3
 
 // HAL function - platform dependent
-void UI_LedPinHigh(const UI_Led_t*); // in UI_port.c
-void UI_LedPinLow(const UI_Led_t*); // in UI_port.c
+void UI_LedPinOn(const UI_Led_t*); // in UI_port.c
+void UI_LedPinOff(const UI_Led_t*); // in UI_port.c
 
 #endif // UI_USE_LEDS
 

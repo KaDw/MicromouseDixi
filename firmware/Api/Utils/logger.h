@@ -19,11 +19,11 @@
 extern "C" {
 #endif
 
-#define LOG_CRITICAL(...)   logger_log('C',__VA_ARGS__)
-#define LOG_ERR(...)        logger_log('E',__VA_ARGS__)
-#define LOG_WARNING(...)    logger_log('W',__VA_ARGS__)
-#define LOG_INFO(...)       logger_log('I',__VA_ARGS__)
-#define LOG_DEBUG(...)      logger_log('D',__VA_ARGS__)
+#define LOG_CRITICAL(...)   logger_log('C', __FUNCTION__, __VA_ARGS__)
+#define LOG_ERR(...)        logger_log('E', __FUNCTION__, __VA_ARGS__)
+#define LOG_WARNING(...)    logger_log('W', 0, __VA_ARGS__)
+#define LOG_INFO(...)       logger_log('I', 0, __VA_ARGS__)
+#define LOG_DEBUG(...)      logger_log('D', 0, __VA_ARGS__)
 
 // definicje funkcji portowanych
 typedef mutex_state_t (*logger_fun_mutex_on_t)();
@@ -46,11 +46,14 @@ void logger_init();
 /// @param1: rodzaj logu, jakis enum urzytkownika
 /// @param2: format stringu - patrz fprintf
 /// @param3: elpisis
-void logger_log(int type, const char* frm, ...);
+void logger_log(int type, const char* prefix, const char* frm, ...);
 
 // wysyla dane do urzadzen logujacych w wolnej chwili
 // wywolywane z glownego watku
 void logger_process();
+
+// port layer sould call this function, after transmission is completed
+void logger_sendCompleted();
 
 #ifdef __cplusplus
 }

@@ -118,7 +118,7 @@ do { \
 
 
 // compare ring count to his size
-#define ring_is_full(BUF) (ring_count(BUF)==(BUF)->size))
+#define ring_is_full(BUF) (ring_count(BUF)==(BUF)->size)
 
 
 // compare ring count to zero
