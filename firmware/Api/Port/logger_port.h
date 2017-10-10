@@ -19,6 +19,16 @@
 /// logs won't be divided into 2 buffers
 #define LOGGER_CONTINOUS_LOG 1
 
+
+/// log suffix
+#define LOGGER_ADD_SLASH_R 			0
+
+/// log suffix
+#define LOGGER_ADD_SLASH_ZERO 	1
+
+/// error option
+#define LOGGER_ADD_ERROR_FUN_NAME	1
+
 /// typ zwracany przez funcje odpowiedzialna za
 /// uruchamianie mutexow dla loggera
 typedef int mutex_state_t;

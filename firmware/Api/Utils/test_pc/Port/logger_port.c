@@ -23,20 +23,31 @@ void timer_handler()
 	logger_sendCompleted();
 }
 
+int txBusy = 0;
+
+void p_logger_makeTxReady()
+{
+	if(txBusy){
+		logger_sendCompleted();
+		txBusy = 0;
+	}
+}
+
 bool p_logger_send(char* ptr, int len)
 {
-	if(timer_isEnabled()) return 1;
+	if(txBusy) return 1;
 
 	if(len == 0){
 		printf("Zero len at start\n");
 	}
 
+	txBusy = 1;
 	while (len > 0) {
 		len -= printf("%s", ptr);
 	}
 	// while(in Transmission);
 	// logger_SendCompleted(); return 1;
-	start_timer(1, timer_handler); // opoxnij zakonczenie wysylania o 1ms
+	//start_timer(1, timer_handler); // opoxnij zakonczenie wysylania o 1ms
   return 0;
 }
 

@@ -19,8 +19,13 @@
 extern "C" {
 #endif
 
+#if LOGGER_ADD_ERROR_FUN_NAME
 #define LOG_CRITICAL(...)   logger_log('C', __FUNCTION__, __VA_ARGS__)
 #define LOG_ERR(...)        logger_log('E', __FUNCTION__, __VA_ARGS__)
+#else
+#define LOG_CRITICAL(...)   logger_log('C', 0, __VA_ARGS__)
+#define LOG_ERR(...)        logger_log('E', 0, __VA_ARGS__)
+#endif
 #define LOG_WARNING(...)    logger_log('W', 0, __VA_ARGS__)
 #define LOG_INFO(...)       logger_log('I', 0, __VA_ARGS__)
 #define LOG_DEBUG(...)      logger_log('D', 0, __VA_ARGS__)

@@ -14,15 +14,22 @@
 /// wyslania poprzednich we wszystkie miejsca docelowe
 #define LOGGER_BUF_SIZE 120
 
+/// log suffix
+#define LOGGER_ADD_SLASH_R 			0
 
-#define LOGGER_CONTINOUS_LOG 1
-/*
-/// bufor urzywany do formatowania pojedynczych logow
-/// za pomoca funkcji snprintf
-#define LOGGER_BUF_TEMP_SIZE 64*/
+/// log suffix
+#define LOGGER_ADD_SLASH_ZERO 	1
+
+/// error option
+#define LOGGER_ADD_ERROR_FUN_NAME	1
+
+/// buffering option - when 0, then log can start in buffer (eg) 0 and end in next buffer (here) 1
+#define LOGGER_CONTINOUS_LOG 		1
 
 /// typ zwracany przez funcje odpowiedzialna za
 /// uruchamianie mutexow dla loggera
 typedef int mutex_state_t;
 
+// only for pc test
+void p_logger_makeTxReady();
 #endif

@@ -15,8 +15,14 @@ extern "C" {
 
 #define LOGGER_ASSERT(x) if(!(x)) { logger_fun.assert_fun(__LINE__, __FUNCTION__); }
 
-/// place for sufix: "\r\n\0"
+/// place for sufix: eg "\r\n\0"
+#if LOGGER_ADD_SLASH_R && LOGGER_ADD_SLASH_ZERO
 #define LOGGER_BUF_EXTRA_SIZE 3
+#elif LOGGER_ADD_SLASH_R || LOGGER_ADD_SLASH_ZERO
+#define LOGGER_BUF_EXTRA_SIZE 2
+#else
+#define LOGGER_BUF_EXTRA_SIZE 1
+#endif
 
 /// podstawowa jednostka buforowa
 typedef struct
@@ -186,9 +192,13 @@ void logger_log(int type, const char* prefix, const char* frm, ...)
 	if (logger.buff_temp.len >= LOGGER_BUF_SIZE) {
 		logger.buff_temp.len = LOGGER_BUF_SIZE-1; // -1 bo chcemy zastapic zero ktore zostalo wstawione na koncu
 	}
-	logger.buff_temp.buff[logger.buff_temp.len++] = '\r';
+	#if LOGGER_ADD_SLASH_R
+		logger.buff_temp.buff[logger.buff_temp.len++] = '\r';
+	#endif
 	logger.buff_temp.buff[logger.buff_temp.len++] = '\n';
-	logger.buff_temp.buff[logger.buff_temp.len] = '\0'; // tymczasowo zakoncz napis
+	#if LOGGER_ADD_SLASH_ZERO
+		logger.buff_temp.buff[logger.buff_temp.len] = '\0'; // tymczasowo zakoncz napis
+	#endif
 	va_end(arg);
 
 	LOGGER_ASSERT(logger.buff_temp.len < sizeof(logger.buff_temp.buff)/sizeof(*logger.buff_temp.buff));
@@ -244,9 +254,9 @@ void logger_process()
   if (logger.buff_temp.len > 0) {
 	  _logger_tryMoveTemp();
   }
-  //if (logger.buff[logger.rbuff_index].len > 0) {
-	//  logger_process();
-  //}
+  if (logger.buff[logger.rbuff_index].len > 0) {
+	  logger_process();
+  }
 }
 
 #ifdef __cplusplus
