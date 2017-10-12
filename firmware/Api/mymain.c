@@ -5,11 +5,27 @@
  *      Author: Karol
  */
 
+#include "Utils/logger.h"
 #include "Utils/UI.h"
+#include "Port/mpu6050.h"
+
+void testModules();
 
 void initModules()
 {
 	logger_init();
+	UI_Init();
+	mpu_init();
+
+	testModules();
+}
+
+void testModules()
+{
+	int res = mpu_selftest();
+	//while(res != 0) ;
+
+	UI_SetLed(LED_L, UI_LED_ST_BLINK_FAST);
 }
 
 void everyCycleFun()
