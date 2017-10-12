@@ -5,14 +5,13 @@
 
 #ifndef __UI_PORT_H__
 #define __UI_PORT_H__
-#include <stdint.h>
-#include "common_port.h"
 
+#include <stdint.h>
 
 #define UI_USE_BUZZER 1
 #define UI_USE_LEDS	  1
 
-#define UI_TIME_SCALE(x) ((int)(1.0f*x))
+#define UI_TIME_SCALE(x) ((int)(0.01f*x))
 
 // ======
 //  LEDS
@@ -26,8 +25,8 @@
 
 typedef struct
 {
-	uint16_t pin;
-	GPIO_TypeDef* port;
+	uint32_t pin;
+	char port;
 	char inv; // inverted pin logic (Low-On, High-Off)
 } UI_Led_t;
 
@@ -59,8 +58,8 @@ void UI_LedPinOff(const UI_Led_t*); // in UI_port.c
 
 typedef struct
 {
-	uint16_t pin;
-	GPIO_TypeDef* port;
+	uint32_t pin;
+	char port;
 	char inv; // inverted pin logic (Low-On, High-Off)
 } UI_Buzzer_t;
 

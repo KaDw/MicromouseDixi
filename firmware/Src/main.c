@@ -47,9 +47,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "port/as5147p.h"
-#include "port/mpu6050.h"
-#include "utils/logger.h"
+#include "mymain.h"
 
 /* USER CODE END Includes */
 
@@ -76,7 +74,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	logger_init();
 
   /* USER CODE END 1 */
 
@@ -107,11 +104,12 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
+  MX_TIM10_Init();
 
   /* USER CODE BEGIN 2 */
 
-  if(mpu_selftest())
-	  while(1);
+	initModules();
+  int z = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,8 +119,8 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-	  HAL_Delay(100);
+  	HAL_Delay(1);
+  	everyCycleFun();
 
   }
   /* USER CODE END 3 */
