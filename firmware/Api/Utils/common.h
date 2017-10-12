@@ -21,6 +21,20 @@ extern "C" {
 #define OFF 0
 #endif
 
+#define PI 3.14159265358979323846f
+
+
+#ifndef ABS
+#define ABS(x)  (((x)<0)?-(x):(x))
+#endif
+
+#ifndef SGN
+#define SGN(x) (((x)>0)-((x)<0))
+#endif
+
+// contrain x value to <lo; hi> range
+int contrain(int x, int lo, int hi);
+
 #ifdef __cplusplus
 }
 #endif
