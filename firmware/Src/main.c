@@ -69,15 +69,13 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-float test[6];
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	logger_init();
-
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -109,9 +107,14 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
-  if(mpu_selftest())
-	  while(1);
+	//logger_init();
+	if(mpu_selftest()){
+		while(1);
+	}
+	mpu_init();
+	mpu_calibrate();
+//  if(mpu_selftest())
+//	  while(1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,8 +124,12 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-	  HAL_Delay(100);
+//	  mpu_get_data(test);
+//	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+//	  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+//	  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+//	  HAL_Delay(1);
+
 
   }
   /* USER CODE END 3 */

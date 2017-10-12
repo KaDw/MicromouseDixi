@@ -6,9 +6,7 @@
 
 //uint8_t i2cRxBuffer[6];
 uint8_t raw_data[12];
-mpu_data a_data;
-mpu_data g_data;
-
+int16_t g_imu_data[6];
 
 uint8_t mpu_selftest(){
 	uint8_t i2cTxBuffer[4];
@@ -17,13 +15,16 @@ uint8_t mpu_selftest(){
 	uint8_t selfTest[6];
 	float factoryTrim[6];
 
+//	if(HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)MPU6050_ADDRESS, 5, 100) != HAL_OK)
+//		return 1;
+
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_WHO_AM_I;
-	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100)!= HAL_OK){
+	if(HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100)!= HAL_OK){
 		LOG_CRITICAL("failed to transmit");
 		return 1;
 	}
 
-	if(HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, rawData, 4, 100) != HAL_OK){
+	if(HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, rawData, 1, 100) != HAL_OK){
 		LOG_CRITICAL("failed to receive");
 		return 1;
 	}
@@ -116,6 +117,7 @@ void mpu_init(){
 }
 
 void mpu_calibrate(){
+
 	uint8_t i2cTxBuffer[4];
 	uint8_t data[12];
 
@@ -127,13 +129,14 @@ void mpu_calibrate(){
 
 	HAL_Delay(200);
 
-	// call mpu_init before calibration, to be sure do it again
 	mpu_init();
+
+	HAL_Delay(200);
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_USER_CTRL;
 	i2cTxBuffer[1] = 0x0C; // reset fifo and dmp
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
-	HAL_Delay(15);
+	HAL_Delay(150);
 
 	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_USER_CTRL;
 	i2cTxBuffer[1] = 0x40; // enable fifo
@@ -187,7 +190,7 @@ void mpu_calibrate(){
 		accel_offset[2] +=  MPU6050_ACCEL_SENSITIVITY;
 
 	for(uint8_t i=0; i < 3; i++) {
-		accel_offset[i]= (-accel_offset[i]);
+		//accel_offset[i]= (-accel_offset[i]);
 		gyro_offset[i] = (-gyro_offset[i]);
 	}
 
@@ -204,8 +207,10 @@ void mpu_calibrate(){
 	data[11] = (gyro_offset[2] >> 8) & 0xff;
 	data[12] = gyro_offset[2] & 0xff;
 
+	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_XA_OFFS_H;
 	// transmit to offst registers
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, data, 12, 100);
+	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100);
+	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, data, 13, 100);
 
 	LOG_INFO("MPU6050 calibration process finished");
 
@@ -233,7 +238,6 @@ float* mpu_raw_data(float* data){
 //	return a1;
 //}
 
-// interrupt from gyro
 void mpu_get_data(){
 	uint8_t i2cTxBuffer = (uint8_t)MPU6050_REG_ACCEL_XOUT_H;
 	HAL_I2C_Master_Transmit_IT(&hi2c1, MPU6050_ADDRESS, &i2cTxBuffer, 1);
@@ -246,15 +250,19 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 
 // TODO check if HAL_I2C_MasterRxCpltCallback is called when all data is received
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2cHandle){
-
-	a_data.x = (float)((((int16_t)raw_data[0]) << 8) | raw_data[1])/MPU6050_ACCEL_SENSITIVITY;
-	a_data.y = (float)((((int16_t)raw_data[2]) << 8) | raw_data[3])/MPU6050_ACCEL_SENSITIVITY;
-	a_data.z = (float)((((int16_t)raw_data[4]) << 8) | raw_data[5])/MPU6050_ACCEL_SENSITIVITY;
-    g_data.x = (float)((((int16_t)raw_data[6]) << 8) | raw_data[7])/MPU6050_GYRO_SENSITIVITY;
-    g_data.y = (float)((((int16_t)raw_data[8]) << 8) | raw_data[9])/MPU6050_GYRO_SENSITIVITY;
-    g_data.z = (float)((((int16_t)raw_data[10]) << 8) | raw_data[11])/MPU6050_GYRO_SENSITIVITY;
-	//set new data flag?
-	//filter and integrate?
+	g_imu_data[0] = (((int16_t)raw_data[0]) << 8) | raw_data[1];
+	g_imu_data[1] = (((int16_t)raw_data[2]) << 8) | raw_data[3];
+	g_imu_data[2] = (((int16_t)raw_data[4]) << 8) | raw_data[5];
+	g_imu_data[0] = (((int16_t)raw_data[6]) << 8) | raw_data[7];
+	g_imu_data[1] = (((int16_t)raw_data[8]) << 8) | raw_data[9];
+	g_imu_data[2] = (((int16_t)raw_data[10]) << 8) | raw_data[11];
+	// 0.75us
+//	a_data.x = (float)((((int16_t)raw_data[0]) << 8) | raw_data[1])/MPU6050_ACCEL_SENSITIVITY;
+//	a_data.y = (float)((((int16_t)raw_data[2]) << 8) | raw_data[3])/MPU6050_ACCEL_SENSITIVITY;
+//	a_data.z = (float)((((int16_t)raw_data[4]) << 8) | raw_data[5])/MPU6050_ACCEL_SENSITIVITY;
+//	g_data.x = (float)((((int16_t)raw_data[6]) << 8) | raw_data[7])/MPU6050_GYRO_SENSITIVITY;
+//	g_data.y = (float)((((int16_t)raw_data[8]) << 8) | raw_data[9])/MPU6050_GYRO_SENSITIVITY;
+//	g_data.z = (float)((((int16_t)raw_data[10]) << 8) | raw_data[11])/MPU6050_GYRO_SENSITIVITY;
 }
 
 

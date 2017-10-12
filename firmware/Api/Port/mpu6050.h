@@ -182,21 +182,13 @@ typedef enum
 
 //
 
-typedef struct
-{
-	float x;
-	float y;
-	float z;
-}mpu_data;
+extern int16_t g_imu_data[6];
 
-extern mpu_data a_data;
-extern mpu_data g_data;
-
-
-uint8_t mpu_selftest() __attribute__((optimize(0)));
+uint8_t mpu_selftest(); // __attribute__((optimize(0)));
 void mpu_init();
 void mpu_calibrate();
 float* mpu_raw_data(float* data);
+void mpu_get_data();
 
 
 #endif /* MPU6050_H_ */
