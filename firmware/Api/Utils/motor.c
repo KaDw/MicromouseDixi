@@ -2,14 +2,27 @@
  * motor.c
  *
  *  Created on: 12.10.2017
- *      Author: Karol
+ *      Author: Karol Trzcinski
+ *
+ *
+ *  Description:
+ *  	module to control 2 motors of mobile robot
+ *  	it base on motor_driver, there can be used a lot of sensors
+ *  	to find best PWM coefficient
  */
 
-#include "Utils/motor.h"
+#include "motor.h"
 
+// global instance of motors
 motors_t motors;
+
+// global instance of motors callback struct
 motors_cb_s motors_cb;
+
+// deifnition of motor_driver from motor_driver.c
 extern void (*motor_driver)(motors_t*);
+
+// helpfull variable
 const float HALF_WHEELBASE					= (WHEELBASE*0.5f);
 const float TICKS_PER_MM						= (TICKS_PER_REVOLUTION/(PI*WHEEL_DIAMETER));
 const float MOTOR_DRIVER_T		    	= (1.0f/MOTOR_DRIVER_FREQ);
@@ -31,6 +44,9 @@ void motor_reset()
 
 void motor_init()
 {
+	MOTOR_ASSERT(MOTOR_MAX_PWM >= MOTOR_MAX_PWM_IN_USE);
+	MOTOR_ASSERT(MOTOR_MAX_PWM_IN_USE > 0);
+	MOTOR_ASSERT(motor_driver != 0);
 	motor_reset();
 }
 
@@ -58,6 +74,8 @@ static void _motor_updateEnc()
 
 static void _motor_updateAV(motor_t* mot)
 {
+	MOTOR_ASSERT(mot != 0);
+
 	/// update accelerate and velocity
 	/// increase/decrease 'temp' by 'by' to get closer to 'to'
 	if(mot->vel < mot->targetVel) // accelerate
@@ -113,6 +131,7 @@ static void _motor_updateVariable()
 		motors.mot[0].targetVel = 0;
 		motors.mot[1].targetVel = 0;
 
+		// move end callback
 		if(motors_cb.moveEnd != 0) {
 			motors_cb.moveEnd(&motors);
 		}
@@ -124,28 +143,10 @@ static void _motor_updateVariable()
 }
 
 
-static int _motor_truncPWM(float vel)
-{
-	if(vel >= MOTOR_MAX_PWM)
-		return MOTOR_MAX_PWM;
-	else if(vel <= -MOTOR_MAX_PWM)
-		return -MOTOR_MAX_PWM;
-	else
-		return vel;
-}
-
-
 static void _motor_setPWM()
 {
-	int VL = _motor_truncPWM(motors.mot[0].PWM);
-	int VR = _motor_truncPWM(motors.mot[1].PWM);
-
-	// power limiter
-	int thres = 250;
-	if(VL*VL > thres*thres)
-		VL = thres*SGN(VL);
-	if(VR*VR > thres*thres)
-		VR = thres*SGN(VR);
+	int VL = contrain(motors.mot[0].PWM, -MOTOR_MAX_PWM_IN_USE, MOTOR_MAX_PWM_IN_USE);
+	int VR = contrain(motors.mot[1].PWM, -MOTOR_MAX_PWM_IN_USE, MOTOR_MAX_PWM_IN_USE);
 
 	motor_port_setPwmL(VL);
 	motor_port_setPwmR(VR);
@@ -161,7 +162,10 @@ void motor_update()
 	_motor_setPWM();
 }
 
-float _motor_calcS(float lastV, float vel, float t)
+
+/// calculate distance from given last velocity[mm/s], target velocity[mm/s]
+/// and time of movement[s]
+static float _motor_calcS(float lastV, float vel, float t)
 {
 	 float a = MOTOR_ACC_V;
 	 float Tacc = fabs((vel-lastV) / a);
@@ -175,6 +179,8 @@ float _motor_calcS(float lastV, float vel, float t)
 }
 
 
+/// calculate time needed for moving distance s[mm] with target velocity vel[mm/s]
+/// and current velocity lastV[mm/s]
 static float _motor_calcTime(float lastV, float vel, float s)
 {
 	if(fabs(vel) < 0.001)
@@ -202,7 +208,8 @@ static float _motor_calcTime(float lastV, float vel, float s)
 }
 
 
-float _motor_calcVel(float lastV, float s, float t) // [mm/s], [mm], [s]
+/// calculate target velocity[mm/s] to make distance s[mm] in time t[s]
+static float _motor_calcVel(float lastV, float s, float t)
 {
 	// sprawdzamy, czy mamy przyspieszac, czy zwalniac
 	float a = (lastV*t)>s ? -MOTOR_ACC_V : MOTOR_ACC_V;
@@ -227,14 +234,14 @@ float _motor_calcVel(float lastV, float s, float t) // [mm/s], [mm], [s]
 		// w akcie rozpaczy upraszczamy sobie rownania
 		// doswiadczalnie zostalo dobrane to rownanie
 		// inne opcje to: V = s/t (gdy t!=0), lub cos zupelnie innego
-		LOG_ERR("motor err calc vel (lastV:%d s:%d ms:%d)", (int)lastV, (int)s, (int)(t*1e3));
+		MOTOR_LOG_WARNING("motor err calc vel (lastV:%d s:%d ms:%d)", (int)lastV, (int)s, (int)(t*1e3));
 		V = lastV + a*t;
 	}
 	return V;
 }
 
 
-void motor_GoA(int left, int right, float vel) // [mm] [mm] [mm/s]
+void motor_GoA(int left, int right, float vel)
 {
 	vel = fabs(vel);
 	float lVl = motors.mot[0].vel; //last vel left
@@ -322,6 +329,7 @@ bool motor_isReady(){
 void motor_stop(){
 	motors.mot[0].targetVel = motors.mot[1].targetVel = 0;
 }
+
 
 void motor_go(int left, int right, float vel)
 {

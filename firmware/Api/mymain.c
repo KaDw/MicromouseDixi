@@ -31,7 +31,7 @@ void testModules()
 void everyCycleFun()
 {
 	// ret = Fusion_Process();
-	// Motor Control
+	motor_update();
 	// start new measurements
 	UI_Process();
 

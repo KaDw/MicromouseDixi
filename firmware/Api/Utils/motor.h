@@ -10,8 +10,7 @@
 
 #include <math.h> // sqrt
 #include <string.h> // memset
-#include "Utils/common.h"
-#include "Utils/logger.h"
+#include "common.h"
 #include "Port/motor_port.h"
 
 
@@ -69,9 +68,36 @@ void motor_setPWM(void);
 void motor_flagSet(int flag);
 void motor_flagClear(int flag);
 
-void motor_go(int left, int right, float vel); // [mm] [mm] [mm/s]
+
+/// make move and wait for end of them
+/// motor_update must be called from interrupt during movement
+/// @param: [mm], when negative then move motor backward
+/// @param: [mm], when negative then move motor backward
+/// @param: [mm/s], must be positive
+void motor_go(int left, int right, float vel);
+
+
+/// make move and DO NOT wait for end of them
+/// motor_update must be called from interrupt during movement
+/// @param: [mm], when negative then move motor backward
+/// @param: [mm], when negative then move motor backward
+/// @param: [mm/s], must be positive
 void motor_goA(int left, int right, float vel); // [mm] [mm] [mm/s]
-void motor_turn(int angle, int r, float vel); // [deg] [mm] [mm/s]
+
+
+/// make turn and wait for end of them
+/// motor_update must be called from interrupt during movement
+/// @param: [degree], when negative then robot turn left
+/// @param: [mm], when negative then robot turn backward, when 0 then robot turn in place
+/// @param: [mm/s], must be positive
+void motor_turn(int angle, int r, float vel);
+
+
+/// make turn and DO NOT wait for end of them
+/// motor_update must be called from interrupt during movement
+/// @param: [degree], when negative then robot turn left
+/// @param: [mm], when negative then robot turn backward, when 0 then robot turn in place
+/// @param: [mm/s], must be positive
 void motor_turnA(int angle, int r, float vel); // [deg] [mm] [mm/s]
 
 #endif /* UTILS_MOTOR_H_ */

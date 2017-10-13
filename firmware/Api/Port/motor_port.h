@@ -8,6 +8,7 @@
 #ifndef PORT_MOTOR_PORT_H_
 #define PORT_MOTOR_PORT_H_
 #include "Utils/common.h" // ABS
+#include "Utils/logger.h"
 #include "common_port.h"
 
 // PWM
@@ -32,6 +33,9 @@ static inline encInt motor_port_getEncR() { return MOTOR_HTIM_ENC_R.Instance->CN
 void motor_port_setPwmL(int PWM);
 void motor_port_setPwmR(int PWM);
 
+#define MOTOR_ASSERT(x) 				while(!(x))
+#define MOTOR_LOG_WARNING(...)	LOG_WARNING(__VA_ARGS__)
+
 
 // wheelbase in mm
 #define WHEELBASE							66
@@ -47,6 +51,8 @@ void motor_port_setPwmR(int PWM);
 
 // position controller
 #define MOTOR_MAX_PWM					999
+
+#define MOTOR_MAX_PWM_IN_USE	250
 
 
 // ==============
