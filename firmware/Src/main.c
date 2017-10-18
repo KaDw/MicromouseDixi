@@ -76,6 +76,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	int a = 115;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -105,8 +106,10 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
+  MX_TIM7_Init();
 
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start_IT(&htim7); // led timer
 	//logger_init();
 	if(mpu_selftest()){
 		while(1);

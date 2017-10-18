@@ -50,6 +50,7 @@
 void SVC_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void TIM7_IRQHandler(void);
 void DMA2_Stream0_IRQHandler(void);
 
 #ifdef __cplusplus
