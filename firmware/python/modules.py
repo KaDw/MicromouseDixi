@@ -1,4 +1,4 @@
-
+import random
 
 class dyn:
     input = 0.0
@@ -8,24 +8,52 @@ class dyn:
     def update(self, dt):
         pass
 
+    def reset(self):
+        pass
+
 
 class dynAmplifier(dyn):
-    param = [1.0]
+    param = [random.random()]
 
     def update(self, dt):
         self.output = self.param[0]*self.input
 
 
-class dynIntegerator(dyn):
-    param = [1.0]
+class dynIntegrator(dyn):
+    param = [random.random()]
+    sum = 0.0
 
     def update(self, dt):
-        self.output += self.input * dt * self.param[1]
+        self.sum += self.input * dt * self.param[0]
+        self.output = self.sum
+
+    def reset(self):
+        self.sum = 0.0
 
 
 class dynDifferentiator(dyn):
-    param = [1.0]
-    lastValue = 0.0
+    param = [random.random()]
+    lastValue = None
 
     def update(self, dt):
-        return (self.input - self.lastValue) * self.param[0]
+        if self.lastValue is not None:
+            self.output = (self.input - self.lastValue) * self.param[0] / dt
+        else:
+            self.output = 0.0
+        self.lastValue = self.input
+
+    def reset(self):
+        self.lastValue = None
+
+
+class dynSaturation(dyn):
+    param = [-random.random(), random.random()]
+
+    def update(self, dt):
+        if self.input < self.param[0]:
+            self.output = self.param[0]
+        elif self.param[1] > self.input:
+            self.output = self.param[1]
+        else:
+            self.output = self.input
+
