@@ -128,6 +128,8 @@ void sensor_callback(void)
 				// sprawdz czy naswietlona sciana nie jest jasniejsza od nienaswietlonej
 				if(read[i] < cal[i])
 					read[i] = cal[i];
+
+				sens[i] = read[i] - cal[i];
 			}
 //
 //				//odejmij skladowa stala od sygnalu
