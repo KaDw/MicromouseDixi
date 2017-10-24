@@ -1,16 +1,19 @@
 import modules
+import numbers
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class Simulator:
     """create list of connected modules
     and then run simulation to see what happen"""
-    modules = []  # list of modules with in/out nodes
-    modInNodeNum, modOutNodeNum = [], []  # index of in/out node for each module
-    nodes = []
-    inputs, outputs = [], []  #
-    deltaTime = 1.0
 
     def __init__(self, inputs, outputs):
+        self.modules = []  # list of modules with in/out nodes
+        self.modInNodeNum, self.modOutNodeNum = [], []  # index of in/out node for each module
+        self.nodes = []
+        self.input_nodes, self.output_nodes = [], []  #
+        self.deltaTime = 1.0
         for i in range(inputs):
             self.add_input()
         for o in range(outputs):
@@ -19,12 +22,12 @@ class Simulator:
     def reset_states(self):
         for n in self.nodes:
             n = 0.0
-        for m in modules:
+        for m in self.modules:
             m.reset()
 
     def get_output_index(self, numberofout):
-        assert numberofout < len(self.outputs)
-        return numberofout + len(self.inputs)
+        assert numberofout < len(self.output_nodes)
+        return numberofout + len(self.input_nodes)
 
     def add_module(self, module, inNodeNum, outNodeNum):
         assert isinstance(module, modules.dyn)
@@ -45,20 +48,20 @@ class Simulator:
         return len(self.nodes)-1
 
     def set_hidden_node_count(self, count):
-        assert count >= len(self.inputs) + len(self.outputs)
-        while count > len(self.nodes):
+        current_count = len(self.nodes)-len(self.input_nodes)-len(self.output_nodes)
+        while count > current_count:
             self.add_node()
-        while count < len(self.nodes):
+        while count < current_count:
             del self.nodes[len(self.nodes)-1]
 
     def add_input(self):
         index = self.add_node()
-        self.inputs.append(index)
+        self.input_nodes.append(index)
         return index
 
     def add_output(self):
         index = self.add_node()
-        self.outputs.append(index)
+        self.output_nodes.append(index)
         return index
 
     def _update_module(self, i):
@@ -76,10 +79,12 @@ class Simulator:
         self.nodes[i] = sum([self.modules[n].output for n in listOfConnectedModules])
 
     def set_inputs(self, lis):
+        if isinstance(lis, numbers.Number):
+            lis = [lis]
         assert isinstance(lis, list)
-        assert len(lis) == len(self.inputs)
+        assert len(lis) == len(self.input_nodes)
         for i in range(len(lis)):
-            self.nodes[self.inputs[i]] = lis[i]
+            self.nodes[self.input_nodes[i]] = lis[i]
 
     def make_step(self, dt):
         assert dt > 0
@@ -88,7 +93,22 @@ class Simulator:
         list(map(self._update_node, range(len(self.nodes))))  # update each node
 
     def get_outputs(self):
-        return [self.nodes[n] for n in self.outputs]
+        return [self.nodes[n] for n in self.output_nodes]
+
+    def _correct_module(self, index):
+        fail = False
+        if self.modInNodeNum[index] > len(self.nodes) or \
+            self.modOutNodeNum[index] > len(self.nodes):
+            fail = True
+        if fail:
+            del self.modules[index]
+            del self.modInNodeNum[index]
+            del self.modOutNodeNum[index]
+
+    def correct(self):
+        for m in self.modInNodeNum:
+            if m > len(self.nodes):
+                self.del_module(self.mo)
 
     def simulate(self, u, t = None):
         y = []
@@ -104,4 +124,21 @@ class Simulator:
                 self.make_step(1.0)
             y.append(self.get_outputs())
         return y
+
+    def plot(self, where = None):
+        g = nx.MultiGraph()
+        g.add_nodes_from(list(range(len(self.nodes))))
+        for i in range(len(self.modules)):
+            if isinstance(self.modules[i], modules.dynAmplifier):
+                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='A')
+            elif isinstance(self.modules[i], modules.dynIntegrator):
+                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='I')
+            elif isinstance(self.modules[i], modules.dynDifferentiator):
+                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='D')
+            else:
+                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i])
+
+        pos = nx.spring_layout(g)
+        nx.draw(g)
+        nx.draw_networkx_edge_labels(g, pos)
 
