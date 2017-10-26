@@ -69,14 +69,15 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+float test[6];
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	int a = 115;
+	//int a = 115;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -109,13 +110,13 @@ int main(void)
   MX_TIM7_Init();
 
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start_IT(&htim7); // led timer
+  //HAL_TIM_Base_Start_IT(&htim7); // led timer
 	//logger_init();
 	if(mpu_selftest()){
 		while(1);
 	}
 	mpu_init();
-	mpu_calibrate();
+	//mpu_calibrate();
 //  if(mpu_selftest())
 //	  while(1);
   /* USER CODE END 2 */
@@ -127,11 +128,11 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-//	  mpu_get_data(test);
+	  mpu_raw_data(test);
 //	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 //	  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 //	  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
-//	  HAL_Delay(1);
+	  HAL_Delay(1);
 
 
   }

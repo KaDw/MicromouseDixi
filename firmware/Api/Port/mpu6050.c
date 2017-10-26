@@ -138,31 +138,32 @@ void mpu_calibrate(){
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
 	HAL_Delay(150);
 
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_USER_CTRL;
-	i2cTxBuffer[1] = 0x40; // enable fifo
-	i2cTxBuffer[2] = (uint8_t)MPU6050_REG_FIFO_EN;
-	i2cTxBuffer[3] = 0x78; // en z-axis for gyro and acc for fifo
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 4, 100);
+//	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_USER_CTRL;
+//	i2cTxBuffer[1] = 0x40; // enable fifo
+//	i2cTxBuffer[2] = (uint8_t)MPU6050_REG_FIFO_EN;
+//	i2cTxBuffer[3] = 0x78; // en z-axis for gyro and acc for fifo
+//	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
 	// accumulate samples in FIFO
-	HAL_Delay(80);
+	//HAL_Delay(80);
 
 	// disable fifo
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_EN;
-	i2cTxBuffer[1] = 0x00; // en z-axis for gyro and acc for fifo
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
+//	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_EN;
+//	i2cTxBuffer[1] = 0x00; // en z-axis for gyro and acc for fifo
+//	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 2, 100);
 
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_COUNTH;
-	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100);
+//	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_COUNTH;
+//	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100);
 	// get number of samples in fifo
-	HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, data, 2, 100);
-	uint16_t fifoCount = (uint16_t)((data[0] << 8) | data[1]);
-	fifoCount  = fifoCount / 8; // 2 bytes (gyro) + 6 bytes (acc)
-
+//	HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, data, 2, 100);
+//	uint16_t fifoCount = (uint16_t)((data[0] << 8) | data[1]);
+//	fifoCount  = fifoCount / 8; // 2 bytes (gyro) + 6 bytes (acc)
+	int8_t sample_count = 100;
 	int32_t accel_offset[3] = {0, 0, 0};
 	int32_t gyro_offset[3] = {0, 0, 0};
 
-	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_FIFO_R_W;
-	for(uint16_t i = 0; i < fifoCount+1; i++){
+	i2cTxBuffer[0] = (uint8_t)MPU6050_REG_ACCEL_XOUT_H;
+	//for(uint16_t i = 0; i < fifoCount+1; i++){
+	for(uint16_t i = 0; i < 50; i++){
 		// read from fifo
 		HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2cTxBuffer, 1, 100);
 		HAL_I2C_Master_Receive(&hi2c1, MPU6050_ADDRESS, data, 12, 100);
@@ -173,15 +174,15 @@ void mpu_calibrate(){
 	    gyro_offset[0]  += (int32_t) ((((int16_t)data[6]) << 8) | data[7] ) ;
 	    gyro_offset[1]  += (int32_t) ((((int16_t)data[8]) << 8) | data[9] ) ;
 	    gyro_offset[2]  += (int32_t) ((((int16_t)data[10]) << 8) | data[11] ) ;
-
+	    HAL_Delay(1);
 	    //accel_offset[0] += accel_temp[0];
 	}
-	accel_offset[0] /= fifoCount;
-	accel_offset[1] /= fifoCount;
-	accel_offset[2] /= fifoCount;
-	gyro_offset[0] /= fifoCount;
-	gyro_offset[1] /= fifoCount;
-	gyro_offset[2] /= fifoCount;
+	accel_offset[0] /= sample_count;
+	accel_offset[1] /= sample_count;
+	accel_offset[2] /= sample_count;
+	gyro_offset[0] /= sample_count;
+	gyro_offset[1] /= sample_count;
+	gyro_offset[2] /= sample_count;
 
 	// remove gravity from z-axis
 	if(accel_offset[2] > 0L)
