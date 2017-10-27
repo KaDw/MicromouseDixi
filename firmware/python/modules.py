@@ -11,12 +11,18 @@ class dyn:
     def reset(self):
         pass
 
+    def description(self):
+        return ('',[])
+
 
 class dynAmplifier(dyn):
     param = [random.random()]
 
     def update(self, dt):
         self.output = self.param[0]*self.input
+
+    def description(self):
+        return ('A', self.param)
 
 
 class dynIntegrator(dyn):
@@ -29,6 +35,9 @@ class dynIntegrator(dyn):
 
     def reset(self):
         self.sum = 0.0
+
+    def description(self):
+        return ('I', self.param)
 
 
 class dynDifferentiator(dyn):
@@ -45,15 +54,25 @@ class dynDifferentiator(dyn):
     def reset(self):
         self.lastValue = None
 
+    def description(self):
+        return ('D', self.param)
+
 
 class dynSaturation(dyn):
     param = [-random.random(), random.random()]
 
     def update(self, dt):
+        # validacja parametrow
+        if self.param[0] < self.param[1]:
+            self.param[0], self.param[1] = self.param[1], self.param[0]
+        # dzialanie
         if self.input < self.param[0]:
             self.output = self.param[0]
         elif self.param[1] > self.input:
             self.output = self.param[1]
         else:
             self.output = self.input
+
+    def description(self):
+        return ('S', self.param)
 

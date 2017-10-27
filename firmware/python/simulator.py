@@ -66,6 +66,9 @@ class Simulator:
 
     def _update_module(self, i):
         assert i < len(self.modules)
+        assert len(self.modules) > i
+        assert len(self.modInNodeNum) > i
+        assert len(self.nodes) >= self.modInNodeNum[i]
         self.modules[i].input = self.nodes[self.modInNodeNum[i]]
         dt = self.deltaTime
         m = self.modules[i]
@@ -110,10 +113,11 @@ class Simulator:
             if m > len(self.nodes):
                 self.del_module(self.mo)
 
-    def simulate(self, u, t = None):
+    def simulate(self, u, t=None):
         y = []
         last_time = 0.0
         if t is not None:
+            assert len(u) == len(t)
             last_time = t[0] - (t[1]-t[0])
         for i in range(0, len(u)):
             self.set_inputs(u[i])
@@ -125,20 +129,23 @@ class Simulator:
             y.append(self.get_outputs())
         return y
 
-    def plot(self, where = None):
+    def _get_graph(self):
         g = nx.MultiGraph()
         g.add_nodes_from(list(range(len(self.nodes))))
         for i in range(len(self.modules)):
-            if isinstance(self.modules[i], modules.dynAmplifier):
-                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='A')
-            elif isinstance(self.modules[i], modules.dynIntegrator):
-                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='I')
-            elif isinstance(self.modules[i], modules.dynDifferentiator):
-                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object='D')
-            else:
-                g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i])
+            m = self.modules[i]
+            g.add_edge(self.modInNodeNum[i], self.modOutNodeNum[i], object=m.description())
+        return g
 
+    def plot(self, where = None):
+        g = self._get_graph()
         pos = nx.spring_layout(g)
-        nx.draw(g)
+        nx.draw(g, pos)
+        nx.draw_networkx_labels(g, pos, {i:str(i) for i in range(len(g.nodes))}, font_size=16)
         nx.draw_networkx_edge_labels(g, pos)
+
+    def __str__(self):
+        g = self._get_graph()
+        s = '\n'.join(str(v) for v in g.edges(data=True))
+        return s
 

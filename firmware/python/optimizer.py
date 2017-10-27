@@ -4,11 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 import copy
-
-u = [1 for x in range(100)]
-y = [1.5*x for x in range(100)]
-
-s = simulator.Simulator(1, 1)  # 1 in 1 out
+import time
 
 
 class Optimizer:
@@ -16,12 +12,18 @@ class Optimizer:
         self.o_t = None
         self.o_u = []
         self.o_y = []
-        self.population = []
+        self.avg_y = 0
         self.population = []
         for i in range(pop_size):
             s = simulator.Simulator(*args)
             self.mutate(s)
             self.population.append(s)
+
+    def prepare(self, x, y, t):
+        self.o_t = x
+        self.o_y = y
+        self.o_t = t
+        self.avg_y = sum([sum(i) for i in y])/len(y)/len(y[0])
 
     def _get_simulator_error(self, s):
         assert len(self.o_u) == len(self.o_y)
@@ -33,6 +35,7 @@ class Optimizer:
 
     def rate_simulator(self, s):
         err = self._get_simulator_error(s)
+        err += (len(s.modules) + len(s.nodes)) * self.avg_y
         return err
 
     @staticmethod
@@ -91,37 +94,59 @@ class Optimizer:
 
         # cross individuals with score worse than survived
         # parents are reproductive individuals
-        for p in self.population[best:]:
-            p = self.cross(p, self.population[random.randint(0, reproductive)])
+        self.population[best:] = [self.cross(p, self.population[random.randint(0, reproductive)])
+                                  for p in self.population[best:]]
 
         # mutate individuals with score worse than survived
-        for p in self.population[best:]:
-            self.mutate(p)
+        [self.mutate(p) for p in self.population[best:]]
 
         # rate simulators
-        rates = []
-        for p in self.population:
-            rates.append(self.rate_simulator(p))
+        rates = [self.rate_simulator(p) for p in self.population]
 
         # sort them
         rates, self.population = [list(x) for x in zip(*sorted(zip(rates, self.population), key=lambda pair: pair[0]))]
 
 
 if __name__ == "__main__":
-    o = Optimizer(1000, args=(1, 1))
+    o = Optimizer(pop_size=200, args=(1, 1))
 
-    cnt = 100
-    o.o_y = [[x] for x in range(cnt)]
+    cnt = 300
+    o.o_y = [[x if x < 30 else 30] for x in range(cnt)]
     o.o_u = [[1] for x in range(cnt)]
-    o.o_t = None
+    o.o_t = [t+0.01 for t in range(cnt)]
 
-    iterations = 2
+    ts_start = time.clock()
+    iterations = 50
     for n in range(iterations):
         o.evololution()
         s1 = o.population[4]
         s2 = o.population[20]
         mod = (len(s1.modules), len(s2.modules))
         nod = (len(s1.nodes), len(s2.nodes))
-        print("iter {} fittest {} mod:{} node:{}".format(n, o._get_simulator_error(s), mod, nod))
-    o.population[0].plot()
+        print("iter {} fittest {} mod:{} node:{}".format(n, o._get_simulator_error(s1), mod, nod))
+        if n % 10 == 0:
+            print(o.population[0])
+    t = time.clock()-ts_start
+    model = o.population[0]
+
+    print("czas przeszukiwania: {} ({})".format(t, t/iterations/len(o.population)))
+    print("error {}".format(o.rate_simulator(model)))
+    print(model)
+
+    model.reset_states()
+
+    y = []
+    lastT = 2*o.o_t[0] - o.o_t[1]
+    for u, T in zip(o.o_u, o.o_t):
+        model.set_inputs(u)
+        model.make_step(T-lastT)
+        y.append(model.get_outputs())
+        lastT = T
+    model.plot()
+    f1 = plt.figure()
+    plt.plot(o.o_t, o.o_y, label='oryginal')
+    plt.plot(o.o_t, y, label='sumulator')
+    plt.xlabel('czas')
+    plt.ylabel('odpowiedz')
+    plt.legend()
     plt.show()
