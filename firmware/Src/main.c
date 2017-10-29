@@ -50,6 +50,7 @@
 #include "port/as5147p.h"
 #include "port/mpu6050.h"
 #include "utils/logger.h"
+#include "Utils/fusion.h"
 
 /* USER CODE END Includes */
 
@@ -69,7 +70,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-float test[6];
+int16_t test[6];
 /* USER CODE END 0 */
 
 int main(void)
@@ -112,11 +113,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //HAL_TIM_Base_Start_IT(&htim7); // led timer
 	//logger_init();
-	if(mpu_selftest()){
+	if(mpu_self_test()){
 		while(1);
 	}
 	mpu_init();
-	//mpu_calibrate();
+	mpu_calibrate();
 //  if(mpu_selftest())
 //	  while(1);
   /* USER CODE END 2 */
@@ -128,11 +129,13 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  mpu_raw_data(test);
+	  //mpu_raw_data(test);
+	  mpu_get_data();
 //	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 //	  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 //	  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
 	  HAL_Delay(1);
+	  gyro_integrate();
 
 
   }

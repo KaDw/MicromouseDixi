@@ -27,7 +27,7 @@ typedef struct
 	float z;
 }mpu_data;
 
-
+void gyro_integrate();
 
 
 #endif /* UTILS_FUSION_H_ */

@@ -15,11 +15,11 @@ mpu_data gyro_data;
 
 void gyro_integrate(){
 
-	gyro_data.x = ((float)(prev_imu_data[3] + g_imu_data[3]) / 2 / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.x;
-	gyro_data.y = ((float)(prev_imu_data[4] + g_imu_data[4]) / 2 / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.y;
-	gyro_data.z = ((float)(prev_imu_data[5] + g_imu_data[5]) / 2 / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.z;
+	gyro_data.x = ((float)(prev_imu_data[3] + g_imu_data[3]) / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.x;
+	gyro_data.y = ((float)(prev_imu_data[4] + g_imu_data[4]) / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.y;
+	gyro_data.z = ((float)(prev_imu_data[5] + g_imu_data[5]) / MPU6050_GYRO_SENSITIVITY * SAMPLE_TIME) + gyro_data.z;
 
-	memcpy(prev_imu_data, g_imu_data, sizeof(prev_imu_data)/sizeof(uint8_t));
+	memcpy(prev_imu_data, g_imu_data, sizeof(prev_imu_data)); // previous samples
 
 //	accel_data.x = (float)((((int16_t)raw_data[0]) << 8) | raw_data[1]);
 //	accel_data.y = (float)((((int16_t)raw_data[2]) << 8) | raw_data[3]);

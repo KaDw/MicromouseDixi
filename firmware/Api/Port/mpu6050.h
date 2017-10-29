@@ -15,21 +15,21 @@
 #define MPU6050_REG_X_FINE_GAIN      0x03 //[7:0] X_FINE_GAIN
 #define MPU6050_REG_Y_FINE_GAIN      0x04 //[7:0] Y_FINE_GAIN
 #define MPU6050_REG_Z_FINE_GAIN      0x05 //[7:0] Z_FINE_GAIN
-#define MPU6050_REG_XA_OFFS_H        0x06 //[15:0] XA_OFFS
-#define MPU6050_REG_XA_OFFS_L_TC     0x07
-#define MPU6050_REG_YA_OFFS_H        0x08 //[15:0] YA_OFFS
-#define MPU6050_REG_YA_OFFS_L_TC     0x09
-#define MPU6050_REG_ZA_OFFS_H        0x0A //[15:0] ZA_OFFS
-#define MPU6050_REG_ZA_OFFS_L_TC     0x0B
+#define MPU6050_REG_XA_OFFS_USRH     0x06 //[15:0] XA_OFFS
+#define MPU6050_REG_XA_OFFS_USRL     0x07
+#define MPU6050_REG_YA_OFFS_USRH     0x08 //[15:0] YA_OFFS
+#define MPU6050_REG_YA_OFFS_USRL     0x09
+#define MPU6050_REG_ZA_OFFS_USRH     0x0A //[15:0] ZA_OFFS
+#define MPU6050_REG_ZA_OFFS_USRL     0x0B
 #define MPU6050_REG_SELF_TEST_X      0x0D //[7:5] XA_TEST[4-2], [4:0] XG_TEST[4-0]
 #define MPU6050_REG_SELF_TEST_Y      0x0E //[7:5] YA_TEST[4-2], [4:0] YG_TEST[4-0]
 #define MPU6050_REG_SELF_TEST_Z      0x0F //[7:5] ZA_TEST[4-2], [4:0] ZG_TEST[4-0]
 #define MPU6050_REG_SELF_TEST_A      0x10 //[5:4] XA_TEST[1-0], [3:2] YA_TEST[1-0], [1:0] ZA_TEST[1-0]
-#define MPU6050_REG_XG_OFFS_USRH     0x13 //[15:0] XG_OFFS_USR
+#define MPU6050_REG_XG_OFFS_USRH     0x13 //[15:0] XG_OFFS
 #define MPU6050_REG_XG_OFFS_USRL     0x14
-#define MPU6050_REG_YG_OFFS_USRH     0x15 //[15:0] YG_OFFS_USR
+#define MPU6050_REG_YG_OFFS_USRH     0x15 //[15:0] YG_OFFS
 #define MPU6050_REG_YG_OFFS_USRL     0x16
-#define MPU6050_REG_ZG_OFFS_USRH     0x17 //[15:0] ZG_OFFS_USR
+#define MPU6050_REG_ZG_OFFS_USRH     0x17 //[15:0] ZG_OFFS
 #define MPU6050_REG_ZG_OFFS_USRL     0x18
 #define MPU6050_REG_SMPLRT_DIV       0x19
 #define MPU6050_REG_CONFIG           0x1A
@@ -184,10 +184,10 @@ typedef enum
 
 extern int16_t g_imu_data[6];
 
-uint8_t mpu_selftest(); // __attribute__((optimize(0)));
+uint8_t mpu_self_test(); // __attribute__((optimize(0)));
 void mpu_init();
 void mpu_calibrate();
-float* mpu_raw_data(float* data);
+int16_t* mpu_raw_data(int16_t* data);
 void mpu_get_data();
 
 

@@ -54,10 +54,10 @@
 #define D_R_GPIO_Port GPIOC
 #define LED4_Pin GPIO_PIN_0
 #define LED4_GPIO_Port GPIOH
-#define ADC_RS_Pin GPIO_PIN_0
-#define ADC_RS_GPIO_Port GPIOC
-#define ADC_RF_Pin GPIO_PIN_1
+#define ADC_RF_Pin GPIO_PIN_0
 #define ADC_RF_GPIO_Port GPIOC
+#define ADC_RS_Pin GPIO_PIN_1
+#define ADC_RS_GPIO_Port GPIOC
 #define ADC_R_Pin GPIO_PIN_2
 #define ADC_R_GPIO_Port GPIOC
 #define ADC_L_Pin GPIO_PIN_3
