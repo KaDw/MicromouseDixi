@@ -40,7 +40,7 @@ CH11 sens[5] - RS - Right Side
 	LS ---		--- RS
 
 */
-extern volatile uint32_t read[6];
+extern volatile uint32_t g_sens[6];
 
 typedef enum {
 	ADC_LS = 2,
@@ -53,6 +53,7 @@ typedef enum {
 } ADCx;
 
 void sensor_callback();
+void sensor_off();
 void sensor_read_ambient();
 void sensor_read_channel(uint8_t CHx, volatile uint32_t *buf);
 void sensor_read_channel2(uint8_t CHx1, uint8_t CHx2, volatile uint32_t *buf);

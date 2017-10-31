@@ -109,19 +109,20 @@ int main(void)
   MX_TIM3_Init();
   MX_USART3_UART_Init();
   MX_TIM7_Init();
+  MX_TIM10_Init();
 
   /* USER CODE BEGIN 2 */
   //HAL_TIM_Base_Start_IT(&htim7); // led timer
 	//logger_init();
-	if(mpu_self_test()){
-		while(1);
-	}
-	mpu_init();
-	mpu_calibrate();
+//	if(mpu_self_test()){
+//		while(1);
+//	}
+//	mpu_init();
+//	mpu_calibrate();
 //  if(mpu_selftest())
 //	  while(1);
   /* USER CODE END 2 */
-
+	sensor_off();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

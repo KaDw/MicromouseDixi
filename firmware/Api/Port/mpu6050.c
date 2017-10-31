@@ -219,8 +219,6 @@ void mpu_calibrate(){
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, i2c_tx_buf, 1, 100);
 	HAL_I2C_Master_Transmit(&hi2c1, MPU6050_ADDRESS, data, 6, 100);
 
-
-
 	LOG_INFO("MPU6050 calibration process finished");
 
 }
@@ -242,10 +240,11 @@ int16_t* mpu_raw_data(int16_t* data){
     return data;
 }
 
-
+/*
+ * Call this function to get g_imu_data using DMA
+ * */
 void mpu_get_data(){
 	static uint8_t g_i2c_tx_temp = (uint8_t)MPU6050_REG_ACCEL_XOUT_H;;
-	//i2c_tx_buf1[0] = (uint8_t)MPU6050_REG_ACCEL_XOUT_H;
 	HAL_I2C_Master_Transmit_IT(&hi2c1, MPU6050_ADDRESS, &g_i2c_tx_temp, 1);
 }
 
@@ -262,13 +261,6 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2cHandle){
 	g_imu_data[3] = (((int16_t)g_raw_data[8]) << 8) | g_raw_data[9];
 	g_imu_data[4] = (((int16_t)g_raw_data[10]) << 8) | g_raw_data[11];
 	g_imu_data[5] = (((int16_t)g_raw_data[12]) << 8) | g_raw_data[13];
-	// 0.75us
-//	a_data.x = (float)((((int16_t)raw_data[0]) << 8) | raw_data[1])/MPU6050_ACCEL_SENSITIVITY;
-//	a_data.y = (float)((((int16_t)raw_data[2]) << 8) | raw_data[3])/MPU6050_ACCEL_SENSITIVITY;
-//	a_data.z = (float)((((int16_t)raw_data[4]) << 8) | raw_data[5])/MPU6050_ACCEL_SENSITIVITY;
-//	g_data.x = (float)((((int16_t)raw_data[6]) << 8) | raw_data[7])/MPU6050_GYRO_SENSITIVITY;
-//	g_data.y = (float)((((int16_t)raw_data[8]) << 8) | raw_data[9])/MPU6050_GYRO_SENSITIVITY;
-//	g_data.z = (float)((((int16_t)raw_data[10]) << 8) | raw_data[11])/MPU6050_GYRO_SENSITIVITY;
 }
 
 
