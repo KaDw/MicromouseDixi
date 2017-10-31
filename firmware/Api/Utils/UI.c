@@ -23,21 +23,21 @@ static _UI_LedStat_t _LedsStat[LED_COUNT];
 /// set led ON or OFF and update _LedState[i].isOn state
 static void _UI_LedPinSet(int i, char on)
 {
-	if (UI_Led[i].inv != on) {
-		UI_LedPinHigh(&UI_Led[i]);
+	if (on) {
+		UI_LedPinOn(&UI_Led[i]);
 	}
 	else {
-		UI_LedPinLow(&UI_Led[i]);
+		UI_LedPinOff(&UI_Led[i]);
 	}
 	_LedsStat[i].isOn = on;
 }
 
-/// set led on or off correcponding to led counter and period
+/// set led on or off corresponding to led counter and period
 static void _UI_LedBlinkingProcess(int i, int period)
 {
 	int temp = 2 * (_LedsStat[i].counter % period);
 
-	// gdy jest to 'gorna polowa' to led powinien byc wy��czony
+	// gdy jest to 'gorna polowa' to led powinien byc wlaczony
 	if (temp > period && _LedsStat[i].isOn == ON)
 	{
 		_UI_LedPinSet(i, OFF);
@@ -65,8 +65,8 @@ static void _UI_ProcessLED()
 			break;
 		}
 
-		// LED'y w stanie FLASH zliczaja w d��
-		// pozosta�e w g�r�
+		// LED'y w stanie FLASH zliczaja w dol
+		// pozostale w gore
 		if ((_LedsStat[i].state & _UI_LEDS_COUNTDOWN) == 0) {
 			++_LedsStat[i].counter;
 		}
@@ -124,21 +124,21 @@ static _UI_BuzzerStat_t _BuzzerStat;
 /// set led ON or OFF and update _LedState[i].isOn state
 static void _UI_BuzzerPinSet(char on)
 {
-	if (UI_Buzzer.inv != on) {
-		UI_BuzzerPinHigh(&UI_Buzzer);
+	if (on) {
+		UI_BuzzerPinOn(&UI_Buzzer);
 	}
 	else {
-		UI_BuzzerPinLow(&UI_Buzzer);
+		UI_BuzzerPinOff(&UI_Buzzer);
 	}
 	_BuzzerStat.isOn = on;
 }
 
-/// set buzzer on or off correcponding to buzzer stat counter and period
+/// set buzzer on or off corresponding to buzzer status counter and period
 static void _UI_BuzzerBlinkingProcess(int period)
 {
 	int temp = 2 * (_BuzzerStat.counter % period);
 
-	// gdy jest to 'gorna polowa' to buzzer powinien byc wy��czony
+	// gdy jest to 'gorna polowa' to buzzer powinien byc wlaczony
 	if (temp > period && _BuzzerStat.isOn == ON)
 	{
 		_UI_BuzzerPinSet(OFF);
@@ -164,7 +164,7 @@ static void _UI_ProcessBuzzer()
 		break;
 	}
 
-	// sprawdz czy zlicza� w d�� czy w g�r�
+	// sprawdz czy zliczac w dol czy w gore
 	if ((_BuzzerStat.state & _UI_BUZZER_COUNTDOWN) == 0) {
 		++_BuzzerStat.counter;
 	}

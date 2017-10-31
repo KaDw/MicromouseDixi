@@ -47,10 +47,12 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "port/as5147p.h"
-#include "port/mpu6050.h"
-#include "utils/logger.h"
-#include "Utils/fusion.h"
+//#include "port/as5147p.h"
+//#include "port/mpu6050.h"
+//#include "utils/logger.h"
+//#include "Utils/fusion.h"
+#include "mymain.h"
+
 
 /* USER CODE END Includes */
 
@@ -77,7 +79,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	//int a = 115;
 
   /* USER CODE END 1 */
 
@@ -121,8 +122,11 @@ int main(void)
 //	mpu_calibrate();
 //  if(mpu_selftest())
 //	  while(1);
+  /* USER CODE BEGIN 2 */
+
+	initModules();
   /* USER CODE END 2 */
-	sensor_off();
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -130,14 +134,8 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  //mpu_raw_data(test);
-	  mpu_get_data();
-//	  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-//	  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-//	  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
-	  HAL_Delay(1);
-	  gyro_integrate();
-
+  	HAL_Delay(1);
+  	everyCycleFun();
 
   }
   /* USER CODE END 3 */

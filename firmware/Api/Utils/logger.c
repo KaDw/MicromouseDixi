@@ -15,15 +15,21 @@ extern "C" {
 
 #define LOGGER_ASSERT(x) if(!(x)) { logger_fun.assert_fun(__LINE__, __FUNCTION__); }
 
-/// place for sufix: "\r\n\0"
+/// place for sufix: eg "\r\n\0"
+#if LOGGER_ADD_SLASH_R && LOGGER_ADD_SLASH_ZERO
 #define LOGGER_BUF_EXTRA_SIZE 3
+#elif LOGGER_ADD_SLASH_R || LOGGER_ADD_SLASH_ZERO
+#define LOGGER_BUF_EXTRA_SIZE 2
+#else
+#define LOGGER_BUF_EXTRA_SIZE 1
+#endif
 
 /// podstawowa jednostka buforowa
 typedef struct
 {
   char buff[LOGGER_BUF_SIZE + LOGGER_BUF_EXTRA_SIZE];
   int len;
-  bool busy;
+  bool inTransmission;
 } buff_t;
 
 typedef buff_t* buff_ptr;
@@ -51,7 +57,7 @@ static void _logger_init_struct(logger_t* l)
 	LOGGER_ASSERT(logger_fun.assert_fun != 0);
 	for (int i = 0; i < LOGGER_BUF_COUNT; ++i)
 	{
-		l->buff[i].busy = false;
+		l->buff[i].inTransmission = false;
 		l->buff[i].len = 0;
 		l->buff[i].buff[0] = 0; // ustaw zero w pierwszym znaku
 	}
@@ -62,6 +68,7 @@ static void _logger_init_struct(logger_t* l)
 void logger_init()
 {
 	LOGGER_ASSERT(LOGGER_BUF_COUNT > 0);
+	LOGGER_ASSERT(LOGGER_BUF_COUNT < 1000);
 	_logger_init_struct(&logger);
 }
 
@@ -95,7 +102,7 @@ static int _logger_tryMoveTemp() {
 
 	// czy jest miejsce w buforze, czyli sformatowany tekst nie zmiesci
 	// sie w aktualnym buforze oraz nastepny bufor nie jest wolny
-	if (logger.buff[logger.wbuff_index].len + logger.buff_temp.len >= LOGGER_BUF_SIZE &&
+	if (logger.buff[logger.wbuff_index].len + logger.buff_temp.len >= LOGGER_BUF_SIZE + LOGGER_BUF_EXTRA_SIZE &&
 		logger_next_buff(logger.wbuff_index) == logger.rbuff_index) {
 		// tutaj sygnalizacja bledu przepelnienia wszystkich buforow
 		return -1;
@@ -106,9 +113,6 @@ static int _logger_tryMoveTemp() {
 	// dla aktualnego bufora odbiorczego, gdy nie, to pierwsza wiadomosc
 	// zostanie zachowana w buforze tymczasowym, a kolejnen przepadna
 	buff_ptr wptr = &logger.buff[logger.wbuff_index];
-	if (wptr->busy == true) {
-		return -1;
-	}
 
 #if LOGGER_CONTINOUS_LOG
 	// wersja z ciągłością w pamęci logów
@@ -118,9 +122,6 @@ static int _logger_tryMoveTemp() {
 		logger.wbuff_index = logger_next_buff(logger.wbuff_index);
 
 		wptr = &logger.buff[logger.wbuff_index];
-		if (wptr->busy == true) {
-			return -1;
-		}
 	}
 #else
 	// wersja bez ciagłości w pamięci logów
@@ -140,7 +141,8 @@ static int _logger_tryMoveTemp() {
 		wptr = &logger.buff[logger.wbuff_index];
 	}
 #endif
-	wptr->busy = true;
+	wptr->inTransmission = true;
+	logger.buff_temp.inTransmission = true;
 
 	// dopisz wiadomosc do bufora
 	memcpy(&wptr->buff[wptr->len], &logger.buff_temp.buff[0], logger.buff_temp.len);
@@ -148,29 +150,39 @@ static int _logger_tryMoveTemp() {
 
 	// zwolnij bufory
 	logger.buff_temp.len = 0;
-	logger.buff_temp.busy = false;
-	wptr->busy = false;
+	logger.buff_temp.inTransmission = false;
+	wptr->inTransmission = false;
 	return 0;
 }
 
-void logger_log(int type, const char* frm, ...)
+void logger_log(int type, const char* prefix, const char* frm, ...)
 {
 	// przetworz napisy
 	va_list arg;
 
 	// gdy jest cos w buforze temp, to postaraj sie to wypchnac
 	// gdy sie nie uda, to nie wpisuj nowego loga
-	if (logger.buff_temp.busy == true) {
+	if (logger.buff_temp.len > 0) {
 		if(_logger_tryMoveTemp()){
 			return;
 		}
 	}
+	mutex_state_t m = logger_fun.mutex_on();
 
 	// wpisz przedrostek ktory bedzie kodem numerem kodu dla
 	// znakow niedrukowalnych, o kodzie mniejszym od kodu '!'
 	// w przeciwnym wypadku tym znakiem (gdy jest drukowalny)
-	logger.buff_temp.busy = true;
+	//logger.buff_temp.busy = true;
 	logger.buff_temp.len = _logger_write_prefix(type, logger.buff_temp.buff);
+
+	// add extra prefix, eq function or file name
+	if(prefix != 0){
+		int len = strlen(prefix);
+		strncpy(logger.buff_temp.buff + logger.buff_temp.len, prefix, LOGGER_BUF_SIZE - logger.buff_temp.len - 2);
+		logger.buff_temp.len += len;
+		logger.buff_temp.buff[logger.buff_temp.len++] = ':';
+		logger.buff_temp.buff[logger.buff_temp.len++] = ' ';
+	}
 
 	// rozpocznij formatowanie zgodne z podanym szablonem
 	va_start(arg, frm);
@@ -180,20 +192,37 @@ void logger_log(int type, const char* frm, ...)
 	if (logger.buff_temp.len >= LOGGER_BUF_SIZE) {
 		logger.buff_temp.len = LOGGER_BUF_SIZE-1; // -1 bo chcemy zastapic zero ktore zostalo wstawione na koncu
 	}
-	logger.buff_temp.buff[logger.buff_temp.len++] = '\r';
+	#if LOGGER_ADD_SLASH_R
+		logger.buff_temp.buff[logger.buff_temp.len++] = '\r';
+	#endif
 	logger.buff_temp.buff[logger.buff_temp.len++] = '\n';
-	logger.buff_temp.buff[logger.buff_temp.len] = '\0'; // tymczasowo zakoncz napis
+	#if LOGGER_ADD_SLASH_ZERO
+		logger.buff_temp.buff[logger.buff_temp.len] = '\0'; // tymczasowo zakoncz napis
+	#endif
 	va_end(arg);
 
 	LOGGER_ASSERT(logger.buff_temp.len < sizeof(logger.buff_temp.buff)/sizeof(*logger.buff_temp.buff));
 	_logger_tryMoveTemp();
+
+	logger_fun.mutex_off(m);
+}
+
+
+void logger_sendCompleted()
+{
+  buff_ptr rptr = &logger.buff[logger.rbuff_index];
+	printf("Tx complete %d:%d\n", logger.rbuff_index, rptr->len);
+  rptr->len = 0;
+  rptr->inTransmission = false;
+	logger.rbuff_index = logger_next_buff(logger.rbuff_index);
 }
 
 
 void logger_process()
 {
   // gdy nie ma zadnej wiadomosci
-  if(logger.buff[logger.rbuff_index].len == 0) {
+  if(logger.buff[logger.rbuff_index].len == 0 ||
+  		logger.buff[logger.rbuff_index].inTransmission) {
     return;
   }
 
@@ -201,12 +230,9 @@ void logger_process()
   // specjalnie robimy to w sekcji krytycznej,
   // by sie nie zmieniło 'po drodze'
   mutex_state_t mutex = logger_fun.mutex_on();
-  if(logger.buff[logger.rbuff_index].busy) {
-    logger_fun.mutex_off(mutex);
-    return;
-  }
 
   // gdy bufor do czytania jest rowniez buforem do pisania
+  // oraz wiemy, ze buf do pisania nie jest zajety
   // to inkrementuj bufor do pisania
   if(logger.wbuff_index == logger.rbuff_index) {
     logger.wbuff_index = logger_next_buff(logger.wbuff_index);
@@ -214,16 +240,15 @@ void logger_process()
 
   // bufor do czytania jest zajety
   buff_ptr rptr = &logger.buff[logger.rbuff_index];
-  rptr->busy = true;
-  logger_fun.mutex_off(mutex);
 
   // przystap do transmisji, zawsze wysylamy bufor od poczatku
   // do jego aktualanego konca
-  logger_fun.send(&rptr->buff[0], rptr->len);
-  rptr->len = 0;
-  rptr->buff[0] = '\0';
-  rptr->busy = false;
-  logger.rbuff_index = logger_next_buff(logger.rbuff_index);
+  LOGGER_ASSERT(rptr->len > 0);
+  rptr->inTransmission = true;
+  if(logger_fun.send(&rptr->buff[0], rptr->len) == 0) {
+    rptr->inTransmission = false;
+  }
+  logger_fun.mutex_off(mutex);
 
   // sprawdz czy nie trzeba wyslac kolejnego bufora
   if (logger.buff_temp.len > 0) {
@@ -232,10 +257,6 @@ void logger_process()
   if (logger.buff[logger.rbuff_index].len > 0) {
 	  logger_process();
   }
-
-  // inkrementuj bufor do czytania, bo ten zostal juz obsluzony
-  rptr->busy = false;
-  rptr->len = 0;
 }
 
 #ifdef __cplusplus
