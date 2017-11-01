@@ -118,8 +118,7 @@ class Robot:
             self.map = np.mat([[]])
 
         def odometry(self, encoders):
-            s = encoders[0, 0] + encoders[1, 0]
-            self.pos += 0.5*np.array([math.cos(self.alpha), math.sin(self.alpha)])
+            self.pos += 0.5*(encoders[0, 0] + encoders[1, 0])*np.array([math.cos(self.alpha), -math.sin(self.alpha)])
             self.alpha += self.gamma * (encoders[0, 0] - encoders[1, 0]) / (2*self.h)
 
         def IMU(self, dalpha):
@@ -136,27 +135,28 @@ class Robot:
     class Profiler:
         def __init__(self):
             self.t = 0
-            self.loc_target_pos = np.array([100, 100])
-            self.loc_target_alpha = 90/18*math.pi
+            self.loc_target_pos = np.array([0, 0])
+            self.loc_target_alpha = 0
+            self.angles = []
             pass
 
-        def _get_delta_to_target(self,current_pos, current_alpha):
-            delta_pos = current_pos - self.loc_target_pos
-            dist = sum(delta_pos**2)
-            angle = math.atan2(delta_pos[1], delta_pos[0]) - self.loc_target_alpha
+        def _get_delta_to_target(self, current_pos, current_alpha):
+            delta_pos = self.loc_target_pos - current_pos
+            dist = math.sqrt(sum(delta_pos**2))
+            angle = current_alpha - math.atan2(delta_pos[1], delta_pos[0])
             angle = angle if angle < math.pi else angle - 2*math.pi  # (-pi, pi>
             return dist, angle
 
         def get_target_vel(self, current_pos, current_alpha):
             dist, angle = self._get_delta_to_target(current_pos, current_alpha)
-            common = 50*(2/(1+math.exp(-dist)) - 1)  # sigmoid from dist * k
-            if math.pi*1/4 < math.fabs(angle) < math.pi*3/4:
-                common = 0
-            elif math.fabs(angle) > math.pi*3/4:
-                common = -common
-            diff = angle
+            common = 10*(2/(1+math.exp(-dist)) - 1)  # sigmoid from dist * k
+            common = common*(math.pi - abs(angle))/math.pi  # linear scale to angle
+            diff = 5*angle
             vl = common + diff
             vr = common - diff
+            self.angles.append(180/math.pi*angle)
+            return np.mat([[vl],
+                           [vr]])
             self.t += 1
             return np.mat([
                     [10],
@@ -172,7 +172,7 @@ class Robot:
     def iterate(self):
         pos = self.slam.pos
         r = self.profiler.get_target_vel(self.slam.pos, self.slam.alpha)
-        #r = np.mat([[10], [30]])
+        r = np.mat([[10], [11]])
         self.model.iterate(r, 0.001)
         self.slam.odometry(self.model.Y)
         return pos
@@ -180,9 +180,9 @@ class Robot:
 def trace_to(target, robot):
     pos = []
     alpha = []
-    robot.profiler.loc_target_pos = target[0:1]
+    robot.profiler.loc_target_pos = target[0:2]
     robot.profiler.loc_target_alpha = target[2]
-    for i in range(100):
+    for i in range(200):
         robot.iterate()
         pos.append(robot.slam.pos.tolist())
         alpha.append(robot.slam.alpha)
@@ -190,15 +190,18 @@ def trace_to(target, robot):
 
 model = Robot.Model(t_n=2)
 mm = Robot()
-mm.iterate()
 
-pos, angle = trace_to((100, 50, 1), mm)
+tar = (100, 50, 1)
+pos, angle = trace_to(tar, mm)
+plt.plot(tar[0], tar[1], 'rx')
 l = 15
 for (x, y), angle in zip(pos, angle):
     print((x, y, angle))
     plt.plot([x, x+l*math.cos(angle)], [y, y+l*math.sin(angle)], 'g')
     plt.plot([x], [y], 'bo')
 plt.axis('equal')
+plt.figure()
+plt.plot(mm.profiler.angles)
 plt.show()
 
 
