@@ -67,7 +67,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-float test[6];
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -107,8 +107,8 @@ int main(void)
   MX_TIM10_Init();
 
   /* USER CODE BEGIN 2 */
-
-	initModules();
+  int r = mpu_selftest();
+  while(r != 0);
   int z = 0;
   /* USER CODE END 2 */
 
@@ -120,7 +120,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
   	HAL_Delay(1);
-  	everyCycleFun();
+  	//everyCycleFun();
 
   }
   /* USER CODE END 3 */

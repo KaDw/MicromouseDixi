@@ -35,7 +35,7 @@ class Optimizer:
 
     def rate_simulator(self, s):
         err = self._get_simulator_error(s)
-        err += (len(s.modules) + len(s.nodes)) * self.avg_y
+        err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
         return err
 
     @staticmethod
@@ -76,7 +76,9 @@ class Optimizer:
             mi = random.randint(0, len(s.modules))
             if mi < len(s.modules):
                 for p in s.modules[mi].param:
-                    p += 10*(random.random()-0.5)
+                    r = 4*(random.random()-0.5)
+                    p = p*r + random.random()
+
 
     @staticmethod
     def cross(s1, s2):
@@ -89,7 +91,7 @@ class Optimizer:
 
     def evololution(self):
         pop_len = len(self.population)
-        best = int(0.01*pop_len)
+        best = 1  # int(0.01*pop_len)
         reproductive = int(0.5*pop_len)
 
         # cross individuals with score worse than survived
@@ -108,7 +110,7 @@ class Optimizer:
 
 
 if __name__ == "__main__":
-    o = Optimizer(pop_size=200, args=(1, 1))
+    o = Optimizer(pop_size=300, args=(1, 1))
 
     cnt = 300
     o.o_y = [[x if x < 30 else 30] for x in range(cnt)]
@@ -119,7 +121,7 @@ if __name__ == "__main__":
     iterations = 50
     for n in range(iterations):
         o.evololution()
-        s1 = o.population[4]
+        s1 = o.population[0]
         s2 = o.population[20]
         mod = (len(s1.modules), len(s2.modules))
         nod = (len(s1.nodes), len(s2.nodes))
@@ -145,7 +147,7 @@ if __name__ == "__main__":
     model.plot()
     f1 = plt.figure()
     plt.plot(o.o_t, o.o_y, label='oryginal')
-    plt.plot(o.o_t, y, label='sumulator')
+    plt.plot(o.o_t, y, label='symulator')
     plt.xlabel('czas')
     plt.ylabel('odpowiedz')
     plt.legend()

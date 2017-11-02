@@ -69,6 +69,7 @@ class Simulator:
         assert len(self.modules) > i
         assert len(self.modInNodeNum) > i
         assert len(self.nodes) >= self.modInNodeNum[i]
+        assert len(self.nodes) >= self.modInNodeNum[i]
         self.modules[i].input = self.nodes[self.modInNodeNum[i]]
         dt = self.deltaTime
         m = self.modules[i]

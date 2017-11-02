@@ -145,6 +145,7 @@ class Robot:
             self.loc_target_alpha = 0
             self.angles = []
             self.vel = []
+            self.k = np.array([1, 1, 0], dtype=float)
             pass
 
         def _get_delta_to_target(self, current_pos, current_alpha):
@@ -156,11 +157,10 @@ class Robot:
             return dist, angle
 
         def _get_VW(self, current_pos, current_alpha):
-            k = np.array([1, 1, 1], dtype=float)
             dist, angle = self._get_delta_to_target(current_pos, current_alpha)
-            v = k[0]*dist*math.cos(angle)
+            v = self.k[0]*dist*math.cos(angle)
             omega = 1 if angle == 0 else math.sin(angle)/angle  # sinc angle
-            omega = k[1]*angle + k[0]*math.cos(angle)*omega*(angle + k[2]*self.loc_target_alpha)
+            omega = self.k[1]*angle + self.k[0]*math.cos(angle)*omega*(angle + self.k[2]*self.loc_target_alpha)
             return v, omega
 
         def get_target_vel(self, current_pos, current_alpha):
@@ -178,40 +178,61 @@ class Robot:
         self.profiler = Robot.Profiler()
 
 
-    def iterate(self):
+    def iterate(self, dt):
         pos = self.slam.pos
         r = self.profiler.get_target_vel(self.slam.pos, self.slam.alpha)
         #r = np.mat([[14], [13]])
         #if len(self.profiler.angles) > 100:
         #    r = np.mat([[13], [14]])
-        self.model.iterate(r, 0.001)
+        self.model.iterate(r, dt)
+        self.profiler.vel[-1] = self.model.Y[0, 0]
         self.slam.odometry(self.model.Y)
         return pos
 
-def trace_to(target, robot):
+    def reset(self):
+        self.model.X *= 0
+        self.profiler.angles = []
+        self.profiler.vel = []
+        self.slam.pos *= 0
+        self.slam.alpha *= 0
+
+    def cost(self, param):
+        target = (100, 50, 1)
+        self.reset()
+        self.profiler.loc_target_pos = target[0:2]
+        self.profiler.loc_target_alpha = target[2]
+        cost = 0
+        for i in range(300):
+            robot.iterate(dt)
+
+
+def trace_to(target, robot, dt):
     pos = []
     alpha = []
     robot.profiler.loc_target_pos = target[0:2]
     robot.profiler.loc_target_alpha = target[2]
     for i in range(900):
-        robot.iterate()
+        robot.iterate(dt)
         pos.append(robot.slam.pos.tolist())
         alpha.append(robot.slam.alpha)
     return pos, alpha
 
-model = Robot.Model(t_n=0.8, k=0.1)
+def plot_step(name):
+    f = open(name)
+    p = []
+    for l in f.readlines()[3:]:
+        p.append(int(l.split()[0]))
+    plt.plot(p)
+    plt.show()
+
+model = Robot.Model(t_n=0.9, k=0.1)
 mm = Robot()
 
-'''
-f = open('2pwm250.txt')
-p = []
-for l in f.readlines()[3:]:
-    p.append(int(l.split()[0]))
-plt.plot(p)
-plt.show()'''
+plot_step('2pwm250.txt')
 
+dt = 0.05
 tar = (100, 50, 1)
-pos, angle = trace_to(tar, mm)
+pos, angle = trace_to(tar, mm, dt)
 plt.plot(tar[0], tar[1], 'rx')
 l = 15
 for (x, y), angle in zip(pos, angle):
@@ -220,8 +241,8 @@ for (x, y), angle in zip(pos, angle):
     plt.plot([x], [y], 'bo')
 plt.axis('equal')
 plt.figure()
-plt.plot(mm.profiler.angles)
-plt.plot(mm.profiler.vel)
+plt.plot(list(np.arange(0, dt*len(pos), dt)), mm.profiler.angles)
+plt.plot(list(np.arange(0, dt*len(pos), dt)), mm.profiler.vel)
 plt.show()
 
 

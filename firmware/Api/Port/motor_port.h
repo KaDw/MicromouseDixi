@@ -9,6 +9,7 @@
 #define PORT_MOTOR_PORT_H_
 #include "Utils/common.h" // ABS
 #include "Utils/logger.h"
+#include "Utils/SLAM2D.h"
 #include "common_port.h"
 
 // PWM
@@ -18,33 +19,14 @@ extern TIM_HandleTypeDef	 		htim3;
 #define MOTOR_CH_L						TIM_CHANNEL_3
 #define MOTOR_CH_R						TIM_CHANNEL_4
 
-// Encoders
-extern TIM_HandleTypeDef 			htim2;
-extern TIM_HandleTypeDef	 		htim5;
-#define MOTOR_HTIM_ENC_L 			htim5
-#define MOTOR_HTIM_ENC_R 			htim2
-
-// must be signed
-typedef int16_t 							encInt;
-
 void motor_port_init();
-static inline encInt motor_port_getEncL() { return MOTOR_HTIM_ENC_L.Instance->CNT; }
-static inline encInt motor_port_getEncR() { return MOTOR_HTIM_ENC_R.Instance->CNT; }
+static inline encInt motor_port_getEncL() { return SLAM_port_getEncL(); }
+static inline encInt motor_port_getEncR() { return SLAM_port_getEncR(); }
 void motor_port_setPwmL(int PWM);
 void motor_port_setPwmR(int PWM);
 
 #define MOTOR_ASSERT(x) 				while(!(x))
 #define MOTOR_LOG_WARNING(...)	LOG_WARNING(__VA_ARGS__)
-
-
-// wheelbase in mm
-#define WHEELBASE							66
-
-// wheel diameter in mm
-#define WHEEL_DIAMETER				37
-
-//
-#define TICKS_PER_REVOLUTION	3520
 
 // in Hz
 #define MOTOR_DRIVER_FREQ			1000
