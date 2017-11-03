@@ -16,7 +16,8 @@ class dyn:
 
 
 class dynAmplifier(dyn):
-    param = [random.random()]
+    r = random.random()
+    param = [1.0/(r-0.5) if r != 0.5 else 0]
 
     def update(self, dt):
         self.output = self.param[0]*self.input
@@ -26,7 +27,8 @@ class dynAmplifier(dyn):
 
 
 class dynIntegrator(dyn):
-    param = [random.random()]
+    r = random.random()
+    param = [1.0/(r-0.5) if r != 0.5 else 0]
     sum = 0.0
 
     def update(self, dt):
@@ -41,7 +43,8 @@ class dynIntegrator(dyn):
 
 
 class dynDifferentiator(dyn):
-    param = [random.random()]
+    r = random.random()
+    param = [1.0/(r-0.5) if r != 0.5 else 0]
     lastValue = None
 
     def update(self, dt):
@@ -59,7 +62,9 @@ class dynDifferentiator(dyn):
 
 
 class dynSaturation(dyn):
-    param = [-random.random(), random.random()]
+    r = random.random()
+    v = 1.0/(r-0.5) if r != 0.5 else 0
+    param = [-v, v]
 
     def update(self, dt):
         # validacja parametrow

@@ -68,7 +68,9 @@ class Simulator:
         assert i < len(self.modules)
         assert len(self.modules) > i
         assert len(self.modInNodeNum) > i
-        assert len(self.nodes) >= self.modInNodeNum[i]
+        assert len(self.nodes) > self.modInNodeNum[i]
+        #print(i, len(self.modInNodeNum), len(self.modules), len(self.nodes))
+        #print(self.modInNodeNum[i])
         self.modules[i].input = self.nodes[self.modInNodeNum[i]]
         dt = self.deltaTime
         m = self.modules[i]
@@ -92,8 +94,11 @@ class Simulator:
     def make_step(self, dt):
         assert dt > 0
         self.deltaTime = dt
-        list(map(self._update_module, range(len(self.modules))))  # update each module
-        list(map(self._update_node, range(len(self.nodes))))  # update each node
+        try:
+            list(map(self._update_module, range(len(self.modules))))  # update each module
+            list(map(self._update_node, range(len(self.nodes))))  # update each node
+        except Exception as e:
+            print('Exception occured: {}'.format(str(e)))
 
     def get_outputs(self):
         return [self.nodes[n] for n in self.output_nodes]
