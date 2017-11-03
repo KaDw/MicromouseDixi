@@ -110,7 +110,7 @@ class Simulator:
 
     def mutate(self):
         # add new module
-        if random.random() < 0.01:
+        if random.random() < 0.03:
             m = self._random_module()
             node_count = len(self.nodes)
             n1, n2 = random.randint(0, node_count - 1), random.randint(0, node_count - 1)
@@ -125,7 +125,7 @@ class Simulator:
                 self.add_module(self._random_module(), n1, n)
                 self.add_module(self._random_module(), n, n2)
         # delete module
-        if random.random() < 0.03 and len(self.modules) > 1:
+        if random.random() < 0.06 and len(self.modules) > 1:
             mi = random.randint(0, len(self.modules))
             if mi < len(self.modules):
                 self.del_module(mi)
@@ -148,7 +148,6 @@ class Simulator:
         return sum/mx
 
     def cross(self, second):
-        twins = self.hamming_distance_to(second) > 0.25
         nmodules = int(min(len(self.modules), len(second.modules)) * random.random())
         newsim = copy.deepcopy(second)
         newsim.modules[0:nmodules] = copy.deepcopy(self.modules[0:nmodules])
@@ -157,10 +156,10 @@ class Simulator:
         n_nodes = len(newsim.nodes)
         for i in range(len(newsim.modules)):
             if newsim.modOutNodeNum[i] > n_nodes:
-                newsim.modOutNodeNum = random.randint(0, n_nodes-1)
+                newsim.modOutNodeNum[i] = random.randint(0, n_nodes-1)
             elif newsim.modInNodeNum[i] > n_nodes:
-                newsim.modInNodeNum = random.randint(0, n_nodes-1)
-        if twins:
+                newsim.modInNodeNum[i] = random.randint(0, n_nodes-1)
+        while False and newsim.hamming_distance_to(second) < 0.25:
             newsim.mutate()
             newsim.mutate()
         return newsim
@@ -230,8 +229,12 @@ class Simulator:
 
 
 class SimulatorLin:
-    def __init__(self):
-        pass
+    def __init__(self, inputs, outputs):
+        mat_rank = 2
+        self.A = np.mat(np.zeros((mat_rank, mat_rank)))
+        self.B = np.mat(np.zeros((mat_rank, inputs)))
+        self.C = np.mat(np.zeros((outputs, mat_rank)))
+        self.D = np.mat(np.zeros((outputs, inputs)))
 
     def simulate(u, t):
         pass
@@ -239,7 +242,15 @@ class SimulatorLin:
     def cross(self, second):
         pass
 
-    def mutate(self):
-        pass
+    def mutate(self, p = 1.0):
+        if random.random() < 0.2*p:
+            ran = self.A.shape
+            self.A[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
+        if random.random() < 0.2*p:
+            ran = self.B.shape
+            self.B[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
+        if random.random() < 0.2*p:
+            ran = self.C.shape
+            self.C[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
 
 

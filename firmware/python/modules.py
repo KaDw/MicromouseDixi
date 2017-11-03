@@ -1,9 +1,11 @@
 import random
 
 class dyn:
-    input = 0.0
-    output = 0.0
-    param = []
+
+    def __init__(self):
+        self.input = 0.0
+        self.output = 0.0
+        self.param = []
 
     def update(self, dt):
         pass
@@ -16,8 +18,13 @@ class dyn:
 
 
 class dynAmplifier(dyn):
-    r = random.random()
-    param = [1.0/(r-0.5) if r != 0.5 else 0]
+    def __init__(self, params=None):
+        super(dynAmplifier, self).__init__()
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         self.output = self.param[0]*self.input
@@ -27,9 +34,14 @@ class dynAmplifier(dyn):
 
 
 class dynIntegrator(dyn):
-    r = random.random()
-    param = [1.0/(r-0.5) if r != 0.5 else 0]
-    sum = 0.0
+    def __init__(self, params=None):
+        super(dynIntegrator, self).__init__()
+        self.sum = 0.0
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         self.sum += self.input * dt * self.param[0]
@@ -43,9 +55,14 @@ class dynIntegrator(dyn):
 
 
 class dynDifferentiator(dyn):
-    r = random.random()
-    param = [1.0/(r-0.5) if r != 0.5 else 0]
-    lastValue = None
+    def __init__(self, params=None):
+        super(dynDifferentiator, self).__init__()
+        self.lastValue = 0.0
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         if self.lastValue is not None:
@@ -62,9 +79,15 @@ class dynDifferentiator(dyn):
 
 
 class dynSaturation(dyn):
-    r = random.random()
-    v = 1.0/(r-0.5) if r != 0.5 else 0
-    param = [-v, v]
+    def __init__(self, params=None):
+        super(dynSaturation, self).__init__()
+        self.lastValue = 0.0
+        if params is None:
+            r = random.random()
+            v = 1.0/(r-0.5) if r != 0.5 else 0
+            self.param = [-v, v]
+        else:
+            self.param = params
 
     def update(self, dt):
         # validacja parametrow
@@ -73,7 +96,7 @@ class dynSaturation(dyn):
         # dzialanie
         if self.input < self.param[0]:
             self.output = self.param[0]
-        elif self.param[1] > self.input:
+        elif self.input > self.param[1]:
             self.output = self.param[1]
         else:
             self.output = self.input
