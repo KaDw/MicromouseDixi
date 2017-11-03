@@ -17,7 +17,7 @@ class Optimizer:
         self.rates = []
         for i in range(pop_size):
             s = simulator.Simulator(*args)
-            self.mutate(s)
+            s.mutate()
             self.population.append(s)
             self.rates.append(self.rate_simulator(s))
 
@@ -40,64 +40,11 @@ class Optimizer:
         err += (len(s.modules) + len(s.nodes)) * self.avg_y
         return err
 
-    @staticmethod
-    def _random_module():
-        r = random.randint(0, 3)
-        m = None
-        if r == 0:
-            m = modules.dynAmplifier()
-        elif r == 1:
-            m = modules.dynIntegrator()
-        elif r == 2:
-            m = modules.dynDifferentiator()
-        elif r == 3:
-            m = modules.dynSaturation()
-        else:
-            assert AssertionError()
-        return m
-
-    def mutate(self, s):
-        # add new module
-        if random.random() < 0.01:
-            m = self._random_module()
-            node_count = len(s.nodes)
-            n1, n2 = random.randint(0, node_count-1), random.randint(0, node_count-1)
-            if n1 != n2:
-                s.add_module(m, n1, n2)
-        # add new node with modules
-        if random.random() < 0.01:
-            node_count = len(s.nodes)
-            n1, n2 = random.randint(0, node_count-1), random.randint(0, node_count-1)
-            if n1 != n2:
-                n = s.add_node()
-                s.add_module(self._random_module(), n1, n)
-                s.add_module(self._random_module(), n, n2)
-        # delete module
-        if random.random() < 0.03 and len(s.modules) > 1:
-            mi = random.randint(0, len(s.modules))
-            if mi < len(s.modules):
-                s.del_module(mi)
-        # mutate param
-        if random.random() < 0.3:
-            mi = random.randint(0, len(s.modules))
-            if mi < len(s.modules):
-                for p in s.modules[mi].param:
-                    p *= 2*(random.random()-0.5)
-
-    @staticmethod
-    def cross(s1, s2):
-        nmodules = int(min(len(s1.modules), len(s2.modules)) * random.random())
-        newsim = copy.deepcopy(s2)
-        newsim.modules[0:nmodules] = copy.deepcopy(s1.modules[0:nmodules])
-        newsim.modInNodeNum[0:nmodules] = copy.deepcopy(s1.modInNodeNum[0:nmodules])
-        newsim.modOutNodeNum[0:nmodules] = copy.deepcopy(s1.modOutNodeNum[0:nmodules])
-        return newsim
-
     def tourney_select(self):
         ''' random 'size' individuals
         select best one with probability p
         or second best with probavility p*(1-p) and so on'''
-        tourney_size, tourney_p = 4, 0.3
+        tourney_size, tourney_p = 3, 0.5
         pop_len = len(self.population)
         participants = [random.randint(0, pop_len-1) for i in range(tourney_size)]
         rates = [self.rates[p] for p in participants]
@@ -118,7 +65,7 @@ class Optimizer:
         ''' create new generation basing on current one'''
         elite = 1
         selector = self.tourney_select
-        self.population[elite:] = [self.cross(selector(), selector()) for i in range(len(self.population[elite:]))]
+        self.population[elite:] = [selector().cross(selector()) for i in range(len(self.population[elite:]))]
 
     def evololution(self):
         pop_len = len(self.population)
@@ -128,7 +75,7 @@ class Optimizer:
         self.new_population()
 
         # mutate individuals with score worse than survived
-        [self.mutate(p) for p in self.population]
+        [p.mutate() for p in self.population]
 
         # rate simulators
         self.rates = [self.rate_simulator(p) for p in self.population]
@@ -146,21 +93,21 @@ if __name__ == "__main__":
     o.o_t = [t+0.01 for t in range(cnt)]
 
     ts_start = time.clock()
-    iterations = 100
+    iterations = 50
     err = []
     for n in range(iterations):
-        try:
+        #try:
             o.evololution()
             s1 = o.population[4]
             s2 = o.population[20]
             mod = (len(s1.modules), len(s2.modules))
             nod = (len(s1.nodes), len(s2.nodes))
             err.append(o._get_simulator_error(s1))
-            print("iter {} fittest {} mod:{} node:{} timr:{}s".format(n, int(o._get_simulator_error(s1)), mod, nod, (int)(time.clock()-ts_start)))
+            print("iter {} fittest {:.1e} mod:{} node:{} time:{}s".format(n, int(o._get_simulator_error(s1)), mod, nod, (int)(time.clock()-ts_start)))
             if n % 10 == 0:
                 print(o.population[0])
-        except Exception as e:
-            print('Exception {}'.format(str(e)))
+        #except Exception as e:
+         #   print('Exception {}'.format(str(e)))
     t = time.clock()-ts_start
     model = o.population[0]
 
