@@ -159,7 +159,7 @@ class Simulator:
                 newsim.modOutNodeNum[i] = random.randint(0, n_nodes-1)
             elif newsim.modInNodeNum[i] > n_nodes:
                 newsim.modInNodeNum[i] = random.randint(0, n_nodes-1)
-        while False and newsim.hamming_distance_to(second) < 0.25:
+        while newsim.hamming_distance_to(second) < 0.25:
             newsim.mutate()
             newsim.mutate()
         return newsim
@@ -230,27 +230,87 @@ class Simulator:
 
 class SimulatorLin:
     def __init__(self, inputs, outputs):
-        mat_rank = 2
-        self.A = np.mat(np.zeros((mat_rank, mat_rank)))
-        self.B = np.mat(np.zeros((mat_rank, inputs)))
-        self.C = np.mat(np.zeros((outputs, mat_rank)))
-        self.D = np.mat(np.zeros((outputs, inputs)))
+        mat_rank = 4
+        mn = (random.random()-0.5)/(random.random()+0.01)
+        self.A = np.mat(np.random.rand(mat_rank, mat_rank) * mn)
+        self.B = np.mat(np.random.rand(mat_rank, inputs) * mn)
+        self.C = np.mat(np.random.rand(outputs, mat_rank) * mn)
+        self.D = np.mat(np.random.rand(outputs, inputs) * mn)
+        self.X = np.mat(np.zeros((mat_rank, 1)))
+        self.lastT = 0
 
-    def simulate(u, t):
-        pass
+    def set_shapes(self, inputs, outputs, mat_rank):
+        mn = (random.random()-0.5)/(random.random()+0.01)
+        self.A = np.mat(np.random.rand(mat_rank, mat_rank) * mn)
+        self.B = np.mat(np.random.rand(mat_rank, inputs) * mn)
+        self.C = np.mat(np.random.rand(outputs, mat_rank) * mn)
+        self.D = np.mat(np.random.rand(outputs, inputs) * mn)
+        self.X = np.mat(np.zeros((mat_rank, 1)))
+
+    def change_range(self):
+        inputs = self.B.shape[1]
+        outputs = self.C.shape[0]
+        mat_rank = self.A.shape[0] + 1
+        mn = (random.random()-0.5)/(random.random()+0.01)
+        A = np.mat(np.random.rand(mat_rank, mat_rank) * mn)
+        A[:-1, :-1] = self.A
+        self.A = A
+        B = np.mat(np.random.rand(mat_rank, inputs) * mn)
+        B[:-1, :] = self.B
+        self.B = B
+        C = np.mat(np.random.rand(outputs, mat_rank) * mn)
+        C[:, :-1] = self.C
+        self.C = C
+
+
+    def reset_states(self):
+        self.X = np.mat(np.zeros((self.A.shape[0], 1)))
+
+    def simulate(self, u, time):
+        Y = []
+        if time is None:
+            time = list(range(len(u)))
+        self.X = np.mat(np.zeros((self.A.shape[0], 1)))
+        for i in range(len(u)):
+            dT = time[i]-self.lastT
+            mu = np.mat(u[i])
+            self.X += self.A*self.X + self.B*np.mat(u[i])
+            cy = self.C*self.X + self.D*u[i]
+            Y.append(cy.tolist()[0])
+        return Y
 
     def cross(self, second):
-        pass
+        def mat_cross(M1, M2):
+            m1, m2 = M1.flatten(), M2.flatten()
+            c = random.randint(0, len(m1))
+            m = copy.deepcopy(m1)
+            m[c:] = copy.deepcopy(m2[c:])
+            m = m.reshape(m1.shape)
+            return m
+        inputs = self.B.shape[1]
+        outputs = self.C.shape[0]
+        new_sim = SimulatorLin(inputs, outputs)
+        new_sim.A = mat_cross(self.A, second.A)
+        new_sim.B = mat_cross(self.B, second.B)
+        new_sim.C = mat_cross(self.C, second.C)
+        new_sim.D = mat_cross(self.D, second.D)
+        return copy.deepcopy(second)
 
-    def mutate(self, p = 1.0):
+    def mutate(self, p=1.0):
         if random.random() < 0.2*p:
             ran = self.A.shape
-            self.A[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
+            mn = (random.random()-0.5)/(random.random()+0.01)
+            self.A[random.randint(0, ran[0]-1), random.randint(0, ran[1]-1)] *= mn
         if random.random() < 0.2*p:
             ran = self.B.shape
-            self.B[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
+            mn = (random.random()-0.5)/(random.random()+0.01)
+            self.B[random.randint(0, ran[0]-1), random.randint(0, ran[1]-1)] *= mn
         if random.random() < 0.2*p:
             ran = self.C.shape
-            self.C[random.randint(ran[0]), random.randint(ran[1])] *= (random.random()-0.5)/(random.random()+0.01)
+            mn = (random.random()-0.5)/(random.random()+0.01)
+            self.C[random.randint(0, ran[0]-1), random.randint(0, ran[1]-1)] *= mn
+        if random.random() < 0.2*p:
+            self.A
 
-
+    def plot(self):
+        pass

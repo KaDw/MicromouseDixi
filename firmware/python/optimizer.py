@@ -17,7 +17,7 @@ class Optimizer:
         self.rates = []
         self.evol_counter = 0
         for i in range(pop_size):
-            s = simulator.Simulator(*args)
+            s = simulator.SimulatorLin(*args)
             s.mutate()
             self.population.append(s)
             self.rates.append(self.rate_simulator(s))
@@ -40,7 +40,7 @@ class Optimizer:
 
     def rate_simulator(self, s, iter_range=None):
         err = self._get_simulator_error(s, iter_range)
-        err += (len(s.modules) + len(s.nodes)) * self.avg_y
+        #err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
         return err
 
     def tourney_select(self):
@@ -72,7 +72,6 @@ class Optimizer:
 
     def evololution(self):
         section_len = len(self.o_t) / 2
-        pop_len = len(self.population)
 
         # cross individuals with score worse than survived
         # parents are reproductive individuals
@@ -80,7 +79,9 @@ class Optimizer:
         # mutate individuals with score worse than survived
         [p.mutate() for p in self.population]
         # rate simulators
-        self.rates = [self.rate_simulator(p) for p in self.population]
+        i = self.evol_counter % int(len(self.o_t)-section_len)
+        err_window = None  #(i, i+section_len)
+        self.rates = [self.rate_simulator(p, err_window) for p in self.population]
         # sort them
         self.rates, self.population = [list(x) for x in zip(*sorted(zip(self.rates, self.population), key=lambda pair: pair[0]))]
         self.evol_counter += 1
@@ -91,24 +92,24 @@ if __name__ == "__main__":
 
     os = simulator.Simulator(1, 1)
     os.add_node()
-    os.add_module(modules.dynAmplifier([10]), 0, 2)
-    os.add_module(modules.dynSaturation([0, 40]), 2, 1)
+    os.add_module(modules.dynAmplifier([5]), 0, 2)
+    os.add_module(modules.dynSaturation([0, 4]), 2, 1)
 
     cnt = 200
-    o.o_u = [[1] for x in range(cnt)]
+    o.o_u = [[np.sin(x/10)] for x in range(cnt)]
     o.o_t = [t+0.01 for t in range(cnt)]
     o.o_y = os.simulate(o.o_u, o.o_t)
 
     ts_start = time.clock()
-    iterations = 50
+    iterations = 10
     err = []
     for n in range(iterations):
         #try:
             o.evololution()
             s1 = o.population[4]
             s2 = o.population[20]
-            mod = (len(s1.modules), len(s2.modules))
-            nod = (len(s1.nodes), len(s2.nodes))
+            mod = ()  #(len(s1.modules), len(s2.modules))
+            nod = ()  #(len(s1.nodes), len(s2.nodes))
             err.append(o.rate_simulator(s1))
             print("iter {} fittest {:.1e} mod:{} node:{} time:{}s".format(n, int(err[-1]), mod, nod, (int)(time.clock()-ts_start)))
             if n % 10 == 0:
@@ -124,13 +125,10 @@ if __name__ == "__main__":
 
     model.reset_states()
 
-    y = []
-    lastT = 2*o.o_t[0] - o.o_t[1]
-    for u, T in zip(o.o_u, o.o_t):
-        model.set_inputs(u)
-        model.make_step(T-lastT)
-        y.append(model.get_outputs())
-        lastT = T
+    y = model.simulate(o.o_u, o.o_t)
+
+    print(y)
+
     model.plot()
     f, ax = plt.subplots(2, sharex=False)
     ax[0].plot(o.o_t, o.o_y, label='oryginal')

@@ -91,7 +91,7 @@ class dynSaturation(dyn):
 
     def update(self, dt):
         # validacja parametrow
-        if self.param[0] < self.param[1]:
+        if self.param[0] > self.param[1]:
             self.param[0], self.param[1] = self.param[1], self.param[0]
         # dzialanie
         if self.input < self.param[0]:
