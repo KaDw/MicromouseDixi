@@ -125,6 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	initModules();
+	everyCycleFun();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -135,7 +136,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
   	HAL_Delay(1);
-  	everyCycleFun();
+//  	everyCycleFun();
 
   }
   /* USER CODE END 3 */

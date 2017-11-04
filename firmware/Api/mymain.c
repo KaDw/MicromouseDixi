@@ -15,14 +15,14 @@ void initModules()
 {
 	logger_init();
 	UI_Init();
-	mpu_init();
-
+	//mpu_init();
+	LOG_INFO("Test");
 	testModules();
 }
 
 void testModules()
 {
-	int res = mpu_self_test();
+	//int res = mpu_selftest();
 	//while(res != 0) ;
 
 	UI_SetLed(LED_L, UI_LED_ST_BLINK_FAST);
@@ -31,7 +31,8 @@ void testModules()
 void everyCycleFun()
 {
 	// ret = Fusion_Process();
-	// Motor Control
+	//motor_update();
+	logger_process();
 	// start new measurements
 	UI_Process();
 

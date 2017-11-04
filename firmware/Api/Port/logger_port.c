@@ -6,8 +6,7 @@
 #include "Utils/logger.h"
 
 
-extern UART_HandleTypeDef* huart3;
-#define LOGGER_UART huart3
+extern UART_HandleTypeDef huart3;
 
 void logger_port_TxCplt(struct __DMA_HandleTypeDef * hdma)
 {
@@ -16,7 +15,7 @@ void logger_port_TxCplt(struct __DMA_HandleTypeDef * hdma)
 
 void logger_port_init()
 {
-	LOGGER_UART->hdmatx->XferCpltCallback = logger_port_TxCplt;
+	//LOGGER_UART->hdmatx->XferCpltCallback = logger_port_TxCplt;
 }
 
 mutex_state_t logger_port_mutex_on()
@@ -36,10 +35,8 @@ void logger_port_mutex_off(mutex_state_t st)
 
 bool logger_port_send(char* ptr, int len)
 {
-	if((LOGGER_UART->hdmatx->Instance->CR & DMA_SxCR_EN) != 0) {
-		return true; // wysylanie w trakcie - nie udalo sie wyslac tej paczki
-	}
-	HAL_UART_Transmit_DMA(LOGGER_UART, (uint8_t*)ptr, len);
+	if(HAL_UART_Transmit_DMA(&huart3, (uint8_t*)ptr, len) != HAL_OK)
+		return true; // wysylanie w trakcie albo inna lipa
 	return false; // false - wiadomosc jest wysylana
 }
 
