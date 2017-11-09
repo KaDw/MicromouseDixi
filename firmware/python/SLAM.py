@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+from matplotlib import gridspec
 import numpy as np
 import math
 import scipy.linalg
+
+import model
 
 
 def lqr(A, B, Q, R):
@@ -23,98 +27,8 @@ def lqr(A, B, Q, R):
 
     return K, P, eigVals
 
-
 class Robot:
-    h = 0.08
-
-    class Model:
-        def __init__(self, k=0.1, zeta=1, t_n=None, w_n=None):
-            assert 0 <= zeta <= 1
-            self.k = k
-            self.zeta = zeta
-            if w_n is not None:
-                self.t_n = 1.8 / w_n
-            elif t_n is not None:
-                self.t_n = t_n
-            else:
-                self.t_n = 1
-            self.Q = np.diag([0, 1, 0, 1])
-            self.R = np.diag([1, 1])
-            self.A, self.B, self.C, self.K, self.L = None, None, None, None, None
-            self.Y = None
-            self.update()
-            self.X = np.zeros((self.A.shape[0], 1))
-            self.Y = self.C*self.X
-
-        @staticmethod
-        def dlqr(A, B, Q, R):
-            """Solve the discrete time lqr controller.
-            x[k+1] = A x[k] + B u[k]
-            cost = sum x[k].T*Q*x[k] + u[k].T*R*u[k]
-            """
-            # ref Bertsekas, p.151
-            # first, try to solve the ricatti equation
-            P = np.matrix(scipy.linalg.solve_discrete_are(A, B, Q, R))
-            # compute the LQR gain
-            K = np.matrix(scipy.linalg.inv(B.T * P * B + R) * (B.T * P * A))
-            eigVals, eigVecs = scipy.linalg.eig(A - B * K)
-            return K, P, eigVals
-
-        def update(self):
-            zeta = self.zeta
-            w_n = 1.8 / self.t_n
-            k = self.k
-            self.A = np.mat([
-                [0, 1, 0, 0],
-                [-w_n ** 2, -2 * zeta * w_n, 0, 0],
-                [0, 0, 0, 1],
-                [0, 0, -w_n ** 2, -2 * zeta * w_n]
-            ], dtype=type(0.0))
-            self.B = np.mat([
-                [0, 0],
-                [k*w_n**2, 0],
-                [0, 0],
-                [0, k*w_n**2]
-            ], dtype=type(0.0))
-            self.C = np.mat([
-                [1, 0, 0, 0],
-                [0, 0, 1, 0]
-            ], dtype=type(0.0))
-            self.K, _, _ = self.dlqr(self.A, self.B, self.Q, self.R)
-
-        def f(self, X, U, dt):
-            """
-            X = [[vl],
-                [al],
-                [vr],
-                [ar]]
-            U = [[dl],
-                [dr]]
-            """
-            I = np.eye(model.A.shape[0])
-            return (self.A*dt + I)*X + self.B*U*dt
-
-        def regulator(self, r, Y, Xhat=None):
-            if Xhat is None:
-                Xhat = self.X
-            U = r-Y  # feedback
-            # U = r - self.K*Xhat  # LQR
-            def saturate(x):
-                max_val = 8.0
-                return max_val if x > max_val else -max_val if x < -max_val else x
-            sat = np.vectorize(saturate)
-            #U = sat(U)  # saturate each element
-            return U
-
-        def measure(self, X):
-            return self.C*X
-
-        def iterate(self, r, dt):
-            if not isinstance(r, (type(np.array([])), type(np.mat([[]])))):
-                r = np.mat([r]).transpose()
-            self.Y = self.measure(self.X)  # Y = C*X
-            U = self.regulator(r, self.Y)
-            self.X = self.f(self.X, U, dt)  # (A*dt + I)*X + B*U*dt
+    h = 0.07  # half wheelbase [m]
 
     class SLAM:
         def __init__(self):
@@ -136,7 +50,7 @@ class Robot:
         def generate_callbacks(self):
             pass
 
-        #def new_cell_callback(self):
+        # def new_cell_callback(self):
 
     class Profiler:
         def __init__(self):
@@ -145,46 +59,46 @@ class Robot:
             self.loc_target_alpha = 0
             self.angles = []
             self.vel = []
-            self.k = np.array([1, 1, 0], dtype=float)
+            self.k = np.array([0.05, 0.05, 0.7], dtype=float)
             pass
 
         def _get_delta_to_target(self, current_pos, current_alpha):
             delta_pos = self.loc_target_pos - current_pos
             dist = math.sqrt(sum(delta_pos**2))
             angle = math.atan2(delta_pos[1], delta_pos[0]) - current_alpha
-            angle = angle % 2*math.pi
-            angle = angle if angle < math.pi else angle - 2*math.pi  # (-pi, pi>
+            # (-pi, pi>
+            while angle > math.pi:
+                angle -= 2*math.pi
+            while angle < -math.pi:
+                angle += 2*math.pi
             return dist, angle
 
         def _get_VW(self, current_pos, current_alpha):
             dist, angle = self._get_delta_to_target(current_pos, current_alpha)
+            gamma = angle - self.loc_target_alpha
             v = self.k[0]*dist*math.cos(angle)
-            omega = 1 if angle == 0 else math.sin(angle)/angle  # sinc angle
-            omega = self.k[1]*angle + self.k[0]*math.cos(angle)*omega*(angle + self.k[2]*self.loc_target_alpha)
+            sinc = 1 if angle == 0 else math.sin(angle)/angle  # sinc angle
+            omega = self.k[1]*angle + self.k[0]*math.cos(angle)*sinc*(angle + self.k[2]*gamma)
             return v, omega
 
         def get_target_vel(self, current_pos, current_alpha):
             v, omega = self._get_VW(current_pos, current_alpha)
             vl = v - omega*Robot.h
             vr = v + omega*Robot.h
-            self.angles.append(omega)
-            self.vel.append(v)
+            self.angles.append(vl)
+            self.vel.append(vr)
             return np.mat([[vl],
                            [vr]])
 
     def __init__(self):
-        self.model = Robot.Model()
+        self.model = model.Model()
         self.slam = Robot.SLAM()
         self.profiler = Robot.Profiler()
 
-
-    def iterate(self, dt):
+    def iterate(self, delta_time):
         pos = self.slam.pos
         r = self.profiler.get_target_vel(self.slam.pos, self.slam.alpha)
-        #r = np.mat([[14], [13]])
-        #if len(self.profiler.angles) > 100:
-        #    r = np.mat([[13], [14]])
-        self.model.iterate(r, dt)
+        self.model.iterate(r, delta_time)
         self.profiler.vel[-1] = self.model.Y[0, 0]
         self.slam.odometry(self.model.Y)
         return pos
@@ -205,44 +119,83 @@ class Robot:
         for i in range(300):
             robot.iterate(dt)
 
+mm = Robot()
 
-def trace_to(target, robot, dt):
+def trace_to(target, robot, delta_time):
     pos = []
     alpha = []
     robot.profiler.loc_target_pos = target[0:2]
     robot.profiler.loc_target_alpha = target[2]
-    for i in range(900):
-        robot.iterate(dt)
+    for i in range(300):
+        robot.iterate(delta_time)
         pos.append(robot.slam.pos.tolist())
         alpha.append(robot.slam.alpha)
     return pos, alpha
 
-def plot_step(name):
-    f = open(name)
-    p = []
-    for l in f.readlines()[3:]:
-        p.append(int(l.split()[0]))
-    plt.plot(p)
-    plt.show()
+dt = 0.005
+tar = (10, -20, 2)
+f = plt.figure()
+gs = gridspec.GridSpec(2, 2)
+ax = [f.add_subplot(gs[:, 1]), f.add_subplot(gs[0, 0])]
 
-model = Robot.Model(t_n=0.9, k=0.1)
-mm = Robot()
 
-plot_step('2pwm250.txt')
+def repaint():
+    l = 15
+    mm.profiler.angles = []
+    mm.profiler.vel = []
+    mm.reset()
+    pos, angle = trace_to(tar, mm, dt)
+    ax[0].clear()
+    ax[0].plot(tar[0], tar[1], 'rx')
+    ax[0].plot([tar[0], tar[0]+1.5*l*math.cos(tar[2])], [tar[1], tar[1]+1.5*l*math.sin(tar[2])], 'r')
+    ax[0].axis('equal')
+    ax[0].set_xlim([-100, 100])
+    ax[0].set_title('trajektoria')
+    ax[0].set_xlabel('[m]')
+    ax[1].clear()
+    ax[1].legend()
+    ax[1].set_title('sterowanie')
+    ax[1].set_xlabel('czas [s]')
+    ax[1].set_ylabel('[rad/s, m/s]')
+    for i in range(200):
+        mm.iterate(dt)
+        x, y = mm.slam.pos.tolist()
+        angle = mm.slam.alpha
+        w = mm.profiler.angles[-1]
+        v = mm.profiler.vel[-1]
+        ax[0].plot([x, x+l*math.cos(angle)], [y, y+l*math.sin(angle)], 'g')
+        ax[0].plot([x], [y], 'bo')
+        ax[1].plot(i*dt, angle, 'ro', label='w_u')
+        ax[1].plot(i*dt, v, 'gx', label='v_u')
 
-dt = 0.05
-tar = (100, 50, 1)
-pos, angle = trace_to(tar, mm, dt)
-plt.plot(tar[0], tar[1], 'rx')
-l = 15
-for (x, y), angle in zip(pos, angle):
-    print((x, y, angle))
-    plt.plot([x, x+l*math.cos(angle)], [y, y+l*math.sin(angle)], 'g')
-    plt.plot([x], [y], 'bo')
-plt.axis('equal')
-plt.figure()
-plt.plot(list(np.arange(0, dt*len(pos), dt)), mm.profiler.angles)
-plt.plot(list(np.arange(0, dt*len(pos), dt)), mm.profiler.vel)
+
+axes = [plt.axes([0.05, 0.1, 0.4, 0.03]),
+          plt.axes([0.05, 0.15, 0.4, 0.03]),
+          plt.axes([0.05, 0.2, 0.4, 0.03])]
+sliders = [Slider(a, 'k', -0.5, 2, valinit=v) for a, v in zip(axes, mm.profiler.k)]
+
+
+# sliders
+def update(val):
+    mm.profiler.k = [s.val for s in sliders]
+    repaint()
+[s.on_changed(update) for s in sliders]
+
+
+# clickers
+def onclick(event):
+    global cid
+    f.canvas.mpl_disconnect(cid)
+    if event.inaxes == ax[0] and event.dblclick:
+        global tar
+        tar = (event.xdata, event.ydata, 0)
+        print(tar)
+        repaint()
+    cid = f.canvas.mpl_connect('button_press_event', onclick)
+
+cid = f.canvas.mpl_connect('button_press_event', onclick)
+
+repaint()
 plt.show()
 
 
