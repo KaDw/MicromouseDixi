@@ -19,6 +19,8 @@ typedef struct
 } _UI_LedStat_t;
 
 static _UI_LedStat_t _LedsStat[LED_COUNT];
+//static uint8_t BtnIntegrate[BTN_COUNT];
+//static uint8_t _BtnStat[BTN_COUNT];
 
 /// set led ON or OFF and update _LedState[i].isOn state
 static void _UI_LedPinSet(int i, char on)
@@ -209,6 +211,46 @@ void UI_SetBuzzer(int UI_BUZZER_ST)
 #endif
 
 
+static _UI_BtnStat_t _BtnStat[BTN_COUNT];
+
+//_BtnStat.cb(_BtnStat.userdata);
+
+void UI_BtnPushEventRegisterCb(int i, btn_cb_t cb){
+	_BtnStat[i].cb = cb;
+	//_BtnStat[i].userdata = userdata;
+}
+
+static void UI_BtnRead(int i) {
+	/* Step 1: Update the integrator based on the input signal.  Note that the
+	 integrator follows the input, decreasing or increasing towards the limits as
+	 determined by the input state (0 or 1). */
+	if (UI_BtnReadGPIO(&UI_Btn[i]) == UI_Btn[i].inv ? GPIO_PIN_SET : GPIO_PIN_RESET) {
+		if (_BtnStat[i].integrator > 0)
+			(_BtnStat[i].integrator)--;
+	} else if (_BtnStat[i].integrator < MAXIMUM)
+		(_BtnStat[i].integrator)++;
+
+	/* Step 2: Update the output state based on the integrator.  Note that the
+	 output will only change states if the integrator has reached a limit, either
+	 0 or MAXIMUM. */
+
+	if (_BtnStat[i].integrator == 0 && _BtnStat[i].state == 1){ // && state == 1 on release
+			_BtnStat[i].state = 0;
+
+	}
+
+	else if (_BtnStat[i].integrator >= MAXIMUM && _BtnStat[i].state == 0) { // && state = 0 on push
+		(_BtnStat[i].integrator) = MAXIMUM; /* defensive code if integrator got corrupted */
+		_BtnStat[i].state = 1;
+		(*(_BtnStat[i].cb))(); // execute callback
+	}
+}
+
+//
+void UI_BtnHandler(){
+	UI_BtnRead(BTN_1);
+	UI_BtnRead(BTN_2);
+}
 void UI_Init()
 {
 #if UI_USE_LEDS
@@ -222,6 +264,19 @@ void UI_Init()
 #if UI_USE_BUZZER
 	_UI_BuzzerPinSet(OFF);
 #endif
+
+#if UI_USE_BUTTONS
+	// callbacki mozna tutaj dawac
+	//UI_BtnPushEventRegisterCb(0, callbackName);
+	//UI_BtnPushEventRegisterCb(1, callbackName);
+#endif
+
+//#if UI_USE_BUTTONS
+//
+//#endif
+
+//#if UI_USE_BUTTONS
+//#endif
 }
 
 /// each function call is one UI period
@@ -235,6 +290,9 @@ void UI_Process()
 	_UI_ProcessBuzzer();
 #endif
 
+#if UI_USE_BUTTONS
+	UI_BtnHandler();
+#endif
 }
 
 #ifdef __cplusplus

@@ -11,6 +11,7 @@
 
 #define UI_USE_BUZZER 1
 #define UI_USE_LEDS	  1
+#define UI_USE_BUTTONS 1
 
 #define UI_TIME_SCALE(x) ((int)(1.0f*x))
 
@@ -71,5 +72,23 @@ void UI_BuzzerPinOn(const UI_Buzzer_t*); // in UI_port.c
 void UI_BuzzerPinOff(const UI_Buzzer_t*); // in UI_port.c
 
 #endif
+
+// ======
+// BUTTONS
+// ======
+
+#define BTN_1 0
+#define BTN_2 1
+#define BTN_COUNT 2
+
+typedef struct
+{
+	uint16_t pin;
+	GPIO_TypeDef* port;
+	char inv; // inverted pin logic (Low-On, High-Off)
+} UI_Btn_t;
+
+GPIO_PinState UI_BtnReadGPIO(const UI_Btn_t* pBtn);
+extern const UI_Btn_t UI_Btn[]; // in UI_port.c
 
 #endif

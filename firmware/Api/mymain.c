@@ -16,8 +16,10 @@ void initModules()
 	logger_init();
 	UI_Init();
 	//mpu_init();
-	LOG_INFO("Test");
-	testModules();
+	//LOG_INFO("Test");
+	//UI_BtnPushEventRegisterCb(1, callbackName);
+	//testModules();
+	//UI_BtnPushEventRegisterCb(UI_SetLed(LED_L, UI_LED_ST_BLINK_FAST));
 }
 
 void testModules()

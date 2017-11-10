@@ -38,6 +38,25 @@ void UI_SetLed(int LED, int UI_LED_ST);
 void UI_SetBuzzer(int UI_BUZZER_ST);
 #endif
 
+#if UI_USE_BUTTONS
+#define DEBOUNCE_TIME       0.15
+#define SAMPLE_FREQUENCY    20
+#define MAXIMUM         (DEBOUNCE_TIME * SAMPLE_FREQUENCY)
+
+typedef void (*btn_cb_t)();
+
+typedef struct
+{
+	char state;
+	uint8_t integrator;
+	btn_cb_t cb;
+	//void *userdata;
+} _UI_BtnStat_t;
+
+void UI_BtnHandler();
+void UI_BtnPushEventRegisterCb(int i, btn_cb_t cb);
+#endif
+
 
 void UI_Init();
 void UI_Process();

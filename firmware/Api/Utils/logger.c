@@ -51,8 +51,8 @@ logger_t logger;
 // funkcja inicjalizujaca strukture
 static void _logger_init_struct(logger_t* l)
 {
-	LOGGER_ASSERT(logger_fun.mutex_on != 0);
-	LOGGER_ASSERT(logger_fun.mutex_off != 0);
+//	LOGGER_ASSERT(logger_fun.mutex_on != 0);
+//	LOGGER_ASSERT(logger_fun.mutex_off != 0);
 	LOGGER_ASSERT(logger_fun.send != 0);
 	LOGGER_ASSERT(logger_fun.assert_fun != 0);
 	for (int i = 0; i < LOGGER_BUF_COUNT; ++i)
@@ -167,7 +167,7 @@ void logger_log(int type, const char* prefix, const char* frm, ...)
 			return;
 		}
 	}
-	mutex_state_t m = logger_fun.mutex_on();
+//	mutex_state_t m = logger_fun.mutex_on();
 
 	// wpisz przedrostek ktory bedzie kodem numerem kodu dla
 	// znakow niedrukowalnych, o kodzie mniejszym od kodu '!'
@@ -204,14 +204,14 @@ void logger_log(int type, const char* prefix, const char* frm, ...)
 	LOGGER_ASSERT(logger.buff_temp.len < sizeof(logger.buff_temp.buff)/sizeof(*logger.buff_temp.buff));
 	_logger_tryMoveTemp();
 
-	logger_fun.mutex_off(m);
+//	logger_fun.mutex_off(m);
 }
 
 
 void logger_sendCompleted()
 {
   buff_ptr rptr = &logger.buff[logger.rbuff_index];
-	printf("Tx complete %d:%d\n", logger.rbuff_index, rptr->len);
+  //printf("Tx complete %d:%d\n", logger.rbuff_index, rptr->len);
   rptr->len = 0;
   rptr->inTransmission = false;
 	logger.rbuff_index = logger_next_buff(logger.rbuff_index);
@@ -229,7 +229,7 @@ void logger_process()
   // gdy zapis do bufora sie nie zakonczyl
   // specjalnie robimy to w sekcji krytycznej,
   // by sie nie zmieniło 'po drodze'
-  mutex_state_t mutex = logger_fun.mutex_on();
+//  mutex_state_t mutex = logger_fun.mutex_on();
 
   // gdy bufor do czytania jest rowniez buforem do pisania
   // oraz wiemy, ze buf do pisania nie jest zajety
@@ -241,14 +241,14 @@ void logger_process()
   // bufor do czytania jest zajety
   buff_ptr rptr = &logger.buff[logger.rbuff_index];
 
-  // przystap do transmisji, zawsze wysylamy bufor od poczatku
-  // do jego aktualanego konca
   LOGGER_ASSERT(rptr->len > 0);
   rptr->inTransmission = true;
   if(logger_fun.send(&rptr->buff[0], rptr->len) == 0) {
+	rptr->len = 0; // po prawidlowym wyslaniu bufor jest pusty, zerujemy?
     rptr->inTransmission = false;
   }
-  logger_fun.mutex_off(mutex);
+//  logger_fun.mutex_off(mutex);
+
 
   // sprawdz czy nie trzeba wyslac kolejnego bufora
   if (logger.buff_temp.len > 0) {
