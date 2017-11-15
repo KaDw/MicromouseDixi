@@ -10,9 +10,12 @@
 
 SLAM2D_t SLAM2D;
 
+
 void SLAM2D_init()
 {
+	memset(&SLAM2D, 0, sizeof(SLAM2D));
 }
+
 
 static void _SLAM2D_ProcessEnc(SLAM_enc_t* enc, encInt val)
 {
@@ -24,6 +27,7 @@ static void _SLAM2D_ProcessEnc(SLAM_enc_t* enc, encInt val)
 	enc->enc += delta;
 	enc->lastEnc = val;
 }
+
 
 // return current
 SLAM2D_pos_t SLAM2D_Odometry()
@@ -44,12 +48,14 @@ SLAM2D_pos_t SLAM2D_Odometry()
 	return delta;
 }
 
+
 // return current dAlpha
 SLAM2D_pos_t SLAM2D_IMU()
 {
 	SLAM2D_pos_t delta;
 	return delta;
 }
+
 
 // return current dAlpha
 SLAM2D_pos_t SLAM2D_LED()
@@ -58,24 +64,31 @@ SLAM2D_pos_t SLAM2D_LED()
 	return delta;
 }
 
+
 void SLAM2D_Process()
 {
 	SLAM2D_pos_t odometry = SLAM2D_Odometry();
 	SLAM2D_pos_t imu = SLAM2D_IMU();
 	SLAM2D_pos_t led = SLAM2D_LED();
+	SLAM2D_pos_t meas;
 
 	// calc angle
 	float dangle_odo = odometry.angle[SLAM_A_G] * (1.0f - SLAM2D.imu_importance);
 	float dangle_imu = imu.angle[SLAM_A_G] * SLAM2D.imu_importance;
-	SLAM2D.position.angle[SLAM_A_G] += dangle_imu + dangle_odo;
+	meas.angle[SLAM_A_G] += dangle_imu + dangle_odo;
 
 	// calc position
 	float dpos_odo[] = {odometry.pos[SLAM_X]*(1.0f-SLAM2D.led_importance),
-			odometry.pos[SLAM_Y]*(1.0f-SLAM2D.led_importance)};
-	float dpos_led[] = {odometry.pos[SLAM_X]*(1.0f-SLAM2D.led_importance),
-			odometry.pos[SLAM_Y]*(1.0f-SLAM2D.led_importance)};
-	SLAM2D.position.pos[0] += dpos_odo[0] + dpos_led[0];
-	SLAM2D.position.pos[1] += dpos_odo[1] + dpos_led[1];
+											odometry.pos[SLAM_Y]*(1.0f-SLAM2D.led_importance)};
+	float dpos_led[] = {odometry.pos[SLAM_X]*(SLAM2D.led_importance),
+											odometry.pos[SLAM_Y]*(SLAM2D.led_importance)};
+	meas.pos[0] += dpos_odo[0] + dpos_led[0];
+	meas.pos[1] += dpos_odo[1] + dpos_led[1];
+
+	// update current position
+	SLAM2D.position.angle[SLAM_A_G] += meas.angle[SLAM_A_G];
+	SLAM2D.position.pos[SLAM_X] 		+= meas.angle[SLAM_X];
+	SLAM2D.position.pos[SLAM_Y] 		+= meas.angle[SLAM_Y];
 }
 
 

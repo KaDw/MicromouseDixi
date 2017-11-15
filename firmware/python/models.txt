@@ -1,0 +1,29 @@
+
+2 rzędu:
+wady: górna częstotliwość na poziomie 500Hz -> koniecznośc próbkowania 1kHz, a po inżyniersku 5-10kHz
+_____Eigenvalue______ Damping___ Frequency_
+      -493                     1        493
+    -3.029                     1      3.029
+
+w: [493.02612774668046, 3.0292497515005725] Hz  z: [ 1.  1.]  K: 0.8385258936826894 m/s/s/V
+A = [[  0.00000000e+00   1.00000000e+00]
+ [ -1.49349927e+03  -4.96055377e+02]]
+
+B = [[    0.        ]
+ [ 1252.33781425]]
+
+C = [[ 1.  0.]]
+
+D = [[0]]
+
+
+1 rzędu:
+zalety: mniej zmiennych, mniejsza czestotliwosc probkowania -> 30Hz
+w: [2.9064260496531826] Hz  z: [ 1.]  K: 0.9064504400448226 m/s/s/V
+A = [[-2.90642605]]
+
+B = [[ 2.63453117]]
+
+C = [[ 1.]]
+
+D = [[0]]

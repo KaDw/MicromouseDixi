@@ -2,16 +2,12 @@ import numpy as np
 import scipy
 
 class Model:
-    def __init__(self, k=0.1, zeta=1, t_n=0.7, w_n=None):
+    #def __init__(self, k=0.86, zeta=(1, 1), w_n=(2.93, 442)):
+    def __init__(self, k=0.86, zeta=(1,), w_n=(2.93,)):
         #  assert 0 <= zeta <= 1
         self.k = k
         self.zeta = zeta
-        if w_n is not None and w_n != 0:
-            self.t_n = 1.8 / w_n
-        elif t_n is not None:
-            self.t_n = t_n
-        else:
-            self.t_n = 1
+        self.w_n = w_n
         self.Q = np.diag([0, 1, 0, 1])
         self.R = np.diag([1, 1])
         self.A, self.B, self.C, self.K, self.L = None, None, None, None, None
@@ -35,25 +31,43 @@ class Model:
         return K, P, eigVals
 
     def update(self):
+        ''' build state space, series G:
+            1 / w
+            -----
+            s + w'''
         zeta = self.zeta
-        w_n = 1.8 / self.t_n if self.t_n != 0 else 1e3
+        w = [w*(z+(1-z**2)**0.5) for w, z in zip(self.w_n, self.zeta)]
         k = self.k
-        self.A = np.mat([
-            [0, 1, 0, 0],
-            [-(self.k + 1)*w_n ** 2, -2 * zeta * w_n, 0, 0],
-            [0, 0, 0, 1],
-            [0, 0, -(self.k + 1)*w_n ** 2, -2 * zeta * w_n]
-        ], dtype=type(0.0))
-        self.B = np.mat([
-            [0, 0],
-            [k*w_n**2, 0],
-            [0, 0],
-            [0, k*w_n**2]
-        ], dtype=type(0.0))
-        self.C = np.mat([
-            [1, 0, 0, 0],
-            [0, 0, 1, 0]
-        ], dtype=type(0.0))
+        if len(w) == 1:
+            self.A = np.mat([
+                [-w[0], 0],
+                [0, -w[0]]
+            ], dtype=type(0.0))
+            self.B = np.mat([
+                [k * w[0], 0],
+                [0, k * w[0]]
+            ], dtype=type(0.0))
+            self.C = np.mat([
+                [1, 0],
+                [0, 1]
+            ], dtype=type(0.0))
+        else:
+            self.A = np.mat([
+                [0, 1, 0, 0],
+                [-w[0]*w[1], -(w[0]+w[1]), 0, 0],
+                [0, 0, 0, 1],
+                [0, 0, -w[0]*w[1], -(w[0]+w[1])]
+            ], dtype=type(0.0))
+            self.B = np.mat([
+                [0, 0],
+                [k*w[0]*w[1], 0],
+                [0, 0],
+                [0, k*w[0]*w[1]]
+            ], dtype=type(0.0))
+            self.C = np.mat([
+                [1, 0, 0, 0],
+                [0, 0, 1, 0]
+            ], dtype=type(0.0))
         #self.K, _, _ = self.dlqr(self.A, self.B, self.Q, self.R)
 
     def f(self, X, U, delta_time):
@@ -74,7 +88,7 @@ class Model:
     def regulator(self, r, Y, Xhat=None):
         if Xhat is None:
             Xhat = self.X
-        U = r-Y  # feedback
+        U = 0.5*(r-Y)  # feedback
         # U = r - self.K*Xhat  # LQR
 
         def saturate(x):
@@ -92,4 +106,4 @@ class Model:
             r = np.mat([r]).transpose()
         self.Y = self.measure(self.X)  # Y = C*X
         U = self.regulator(r, self.Y)
-        self.X = self.f(self.X, U, delta_time)  # (A*dt + I)*X + B*U*dt
+        self.X = self.f(self.X, U, delta_time)  # (A*dt + I)*X + B*U*d

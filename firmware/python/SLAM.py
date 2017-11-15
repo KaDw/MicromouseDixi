@@ -27,6 +27,15 @@ def lqr(A, B, Q, R):
 
     return K, P, eigVals
 
+
+def trim_angle(angle):
+    while angle > math.pi:
+        angle -= 2 * math.pi
+    while angle < -math.pi:
+        angle += 2 * math.pi
+    return angle
+
+
 class Robot:
     h = 0.07  # half wheelbase [m]
 
@@ -39,7 +48,8 @@ class Robot:
 
         def odometry(self, encoders):
             self.pos += 0.5*(encoders[0, 0] + encoders[1, 0])*np.array([math.cos(self.alpha), math.sin(self.alpha)])
-            self.alpha += self.gamma * (encoders[1, 0] - encoders[0, 0]) / (2*Robot.h)
+            dalpha = self.gamma * (encoders[1, 0] - encoders[0, 0]) / (2*Robot.h)
+            self.alpha = trim_angle(self.alpha + dalpha)
 
         def IMU(self, dalpha):
             self.alpha += (1.0-self.gamma) * dalpha
@@ -59,23 +69,18 @@ class Robot:
             self.loc_target_alpha = 0
             self.angles = []
             self.vel = []
-            self.k = np.array([0.05, 0.05, 0.7], dtype=float)
+            self.k = np.array([2, 6, 3], dtype=float)
             pass
 
         def _get_delta_to_target(self, current_pos, current_alpha):
             delta_pos = self.loc_target_pos - current_pos
             dist = math.sqrt(sum(delta_pos**2))
-            angle = math.atan2(delta_pos[1], delta_pos[0]) - current_alpha
-            # (-pi, pi>
-            while angle > math.pi:
-                angle -= 2*math.pi
-            while angle < -math.pi:
-                angle += 2*math.pi
+            angle = trim_angle(math.atan2(delta_pos[1], delta_pos[0]) - current_alpha)
             return dist, angle
 
         def _get_VW(self, current_pos, current_alpha):
             dist, angle = self._get_delta_to_target(current_pos, current_alpha)
-            gamma = angle - self.loc_target_alpha
+            gamma = trim_angle(current_alpha - self.loc_target_alpha)
             v = self.k[0]*dist*math.cos(angle)
             sinc = 1 if angle == 0 else math.sin(angle)/angle  # sinc angle
             omega = self.k[1]*angle + self.k[0]*math.cos(angle)*sinc*(angle + self.k[2]*gamma)
@@ -85,8 +90,8 @@ class Robot:
             v, omega = self._get_VW(current_pos, current_alpha)
             vl = v - omega*Robot.h
             vr = v + omega*Robot.h
-            self.angles.append(vl)
-            self.vel.append(vr)
+            self.angles.append(omega)
+            self.vel.append(v)
             return np.mat([[vl],
                            [vr]])
 
@@ -98,8 +103,8 @@ class Robot:
     def iterate(self, delta_time):
         pos = self.slam.pos
         r = self.profiler.get_target_vel(self.slam.pos, self.slam.alpha)
+        # r = np.mat([[1], [1.1]])
         self.model.iterate(r, delta_time)
-        self.profiler.vel[-1] = self.model.Y[0, 0]
         self.slam.odometry(self.model.Y)
         return pos
 
@@ -126,53 +131,59 @@ def trace_to(target, robot, delta_time):
     alpha = []
     robot.profiler.loc_target_pos = target[0:2]
     robot.profiler.loc_target_alpha = target[2]
-    for i in range(300):
+    for i in range(30):
         robot.iterate(delta_time)
         pos.append(robot.slam.pos.tolist())
         alpha.append(robot.slam.alpha)
     return pos, alpha
 
 dt = 0.005
-tar = (10, -20, 2)
+tar = (10, -20, 0)
 f = plt.figure()
 gs = gridspec.GridSpec(2, 2)
 ax = [f.add_subplot(gs[:, 1]), f.add_subplot(gs[0, 0])]
 
 
 def repaint():
-    l = 15
+    l = 50
     mm.profiler.angles = []
     mm.profiler.vel = []
     mm.reset()
-    pos, angle = trace_to(tar, mm, dt)
+    #pos, angle = trace_to(tar, mm, dt)
+    # narysuj target
     ax[0].clear()
     ax[0].plot(tar[0], tar[1], 'rx')
     ax[0].plot([tar[0], tar[0]+1.5*l*math.cos(tar[2])], [tar[1], tar[1]+1.5*l*math.sin(tar[2])], 'r')
     ax[0].axis('equal')
-    ax[0].set_xlim([-100, 100])
     ax[0].set_title('trajektoria')
     ax[0].set_xlabel('[m]')
+    # oraz wykresy pomocnicze
     ax[1].clear()
     ax[1].legend()
     ax[1].set_title('sterowanie')
     ax[1].set_xlabel('czas [s]')
     ax[1].set_ylabel('[rad/s, m/s]')
-    for i in range(200):
+    # rysuj trajektorie
+    mm.profiler.loc_target_pos = tar[0:2]
+    mm.profiler.loc_target_alpha = tar[2]
+    lastPos = np.array([0, 0])
+    for i in range(30):
         mm.iterate(dt)
         x, y = mm.slam.pos.tolist()
         angle = mm.slam.alpha
         w = mm.profiler.angles[-1]
         v = mm.profiler.vel[-1]
         ax[0].plot([x, x+l*math.cos(angle)], [y, y+l*math.sin(angle)], 'g')
-        ax[0].plot([x], [y], 'bo')
+        ax[0].plot([lastPos[0], x], [lastPos[1], y], 'b')
         ax[1].plot(i*dt, angle, 'ro', label='w_u')
         ax[1].plot(i*dt, v, 'gx', label='v_u')
+        lastPos = [x, y]
 
 
-axes = [plt.axes([0.05, 0.1, 0.4, 0.03]),
+axes = [plt.axes([0.05, 0.2, 0.4, 0.03]),
           plt.axes([0.05, 0.15, 0.4, 0.03]),
-          plt.axes([0.05, 0.2, 0.4, 0.03])]
-sliders = [Slider(a, 'k', -0.5, 2, valinit=v) for a, v in zip(axes, mm.profiler.k)]
+          plt.axes([0.05, 0.1, 0.4, 0.03])]
+sliders = [Slider(a, 'k'+str(i), 0, 8, valinit=v) for i, (a, v) in enumerate(zip(axes, mm.profiler.k))]
 
 
 # sliders
