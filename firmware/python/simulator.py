@@ -1,6 +1,9 @@
 import modules
 import numbers
 import networkx as nx
+import random
+import copy
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -68,12 +71,11 @@ class Simulator:
         assert i < len(self.modules)
         assert len(self.modules) > i
         assert len(self.modInNodeNum) > i
-        assert len(self.nodes) >= self.modInNodeNum[i]
-        assert len(self.nodes) >= self.modInNodeNum[i]
-        self.modules[i].input = self.nodes[self.modInNodeNum[i]]
-        dt = self.deltaTime
-        m = self.modules[i]
-        m.update(dt)
+        if len(self.nodes) > self.modInNodeNum[i]:
+            self.modules[i].input = self.nodes[self.modInNodeNum[i]]
+            dt = self.deltaTime
+            m = self.modules[i]
+            m.update(dt)
 
     def _update_node(self, i):
         ''' update node[i] value based on modules with output connected to them'''
@@ -90,11 +92,86 @@ class Simulator:
         for i in range(len(lis)):
             self.nodes[self.input_nodes[i]] = lis[i]
 
+    @staticmethod
+    def _random_module():
+        r = random.randint(0, 3)
+        m = None
+        if r == 0:
+            m = modules.dynAmplifier()
+        elif r == 1:
+            m = modules.dynIntegrator()
+        elif r == 2:
+            m = modules.dynDifferentiator()
+        elif r == 3:
+            m = modules.dynSaturation()
+        else:
+            assert AssertionError()
+        return m
+
+    def mutate(self):
+        # add new module
+        if random.random() < 0.03:
+            m = self._random_module()
+            node_count = len(self.nodes)
+            n1, n2 = random.randint(0, node_count - 1), random.randint(0, node_count - 1)
+            if n1 != n2:
+                self.add_module(m, n1, n2)
+        # add new node with modules
+        if random.random() < 0.01:
+            node_count = len(self.nodes)
+            n1, n2 = random.randint(0, node_count - 1), random.randint(0, node_count - 1)
+            if n1 != n2:
+                n = self.add_node()
+                self.add_module(self._random_module(), n1, n)
+                self.add_module(self._random_module(), n, n2)
+        # delete module
+        if random.random() < 0.06 and len(self.modules) > 1:
+            mi = random.randint(0, len(self.modules))
+            if mi < len(self.modules):
+                self.del_module(mi)
+        # mutate param
+        if random.random() < 0.3:
+            mi = random.randint(0, len(self.modules))
+            if mi < len(self.modules):
+                for p in self.modules[mi].param:
+                    p *= 2 * (random.random() - 0.5)
+
+    def hamming_distance_to(self, second):
+        mx, sum = 0, 0
+        m1_len, m2_len = len(self.modules), len(second.modules)
+        mx, sum = mx+1, (sum + 1) if m1_len != m2_len else sum
+        for m in range(min(m1_len, m2_len)):
+            mx += 1
+            if type(self.modules[m]) != type(second.modules[m])\
+                    or np.linalg.norm(np.array(self.modules[m].param)-np.array(second.modules[m].param)) > 0.1:
+                sum += 1
+        return sum/mx
+
+    def cross(self, second):
+        nmodules = int(min(len(self.modules), len(second.modules)) * random.random())
+        newsim = copy.deepcopy(second)
+        newsim.modules[0:nmodules] = copy.deepcopy(self.modules[0:nmodules])
+        newsim.modInNodeNum[0:nmodules] = copy.deepcopy(self.modInNodeNum[0:nmodules])
+        newsim.modOutNodeNum[0:nmodules] = copy.deepcopy(self.modOutNodeNum[0:nmodules])
+        n_nodes = len(newsim.nodes)
+        for i in range(len(newsim.modules)):
+            if newsim.modOutNodeNum[i] > n_nodes:
+                newsim.modOutNodeNum[i] = random.randint(0, n_nodes-1)
+            elif newsim.modInNodeNum[i] > n_nodes:
+                newsim.modInNodeNum[i] = random.randint(0, n_nodes-1)
+        while newsim.hamming_distance_to(second) < 0.25:
+            newsim.mutate()
+            newsim.mutate()
+        return newsim
+
     def make_step(self, dt):
         assert dt > 0
         self.deltaTime = dt
+        #try:
         list(map(self._update_module, range(len(self.modules))))  # update each module
         list(map(self._update_node, range(len(self.nodes))))  # update each node
+        #except Exception as e:
+        #    print('Exception occured: {}'.format(str(e)))
 
     def get_outputs(self):
         return [self.nodes[n] for n in self.output_nodes]
@@ -142,11 +219,10 @@ class Simulator:
         g = self._get_graph()
         pos = nx.spring_layout(g)
         nx.draw(g, pos)
-        nx.draw_networkx_labels(g, pos, {i:str(i) for i in range(len(g.nodes))}, font_size=16)
+        nx.draw_networkx_labels(g, pos, {i:str(i) for i in range(len(g.nodes()))}, font_size=16)
         nx.draw_networkx_edge_labels(g, pos)
 
     def __str__(self):
         g = self._get_graph()
         s = '\n'.join(str(v) for v in g.edges(data=True))
         return s
-

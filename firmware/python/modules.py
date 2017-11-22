@@ -1,9 +1,11 @@
 import random
 
 class dyn:
-    input = 0.0
-    output = 0.0
-    param = []
+
+    def __init__(self):
+        self.input = 0.0
+        self.output = 0.0
+        self.param = []
 
     def update(self, dt):
         pass
@@ -16,7 +18,13 @@ class dyn:
 
 
 class dynAmplifier(dyn):
-    param = [random.random()]
+    def __init__(self, params=None):
+        super(dynAmplifier, self).__init__()
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         self.output = self.param[0]*self.input
@@ -26,8 +34,14 @@ class dynAmplifier(dyn):
 
 
 class dynIntegrator(dyn):
-    param = [random.random()]
-    sum = 0.0
+    def __init__(self, params=None):
+        super(dynIntegrator, self).__init__()
+        self.sum = 0.0
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         self.sum += self.input * dt * self.param[0]
@@ -41,8 +55,14 @@ class dynIntegrator(dyn):
 
 
 class dynDifferentiator(dyn):
-    param = [random.random()]
-    lastValue = None
+    def __init__(self, params=None):
+        super(dynDifferentiator, self).__init__()
+        self.lastValue = 0.0
+        if params is None:
+            r = random.random()
+            self.param = [1.0/(r-0.5) if r != 0.5 else 0]
+        else:
+            self.param = params
 
     def update(self, dt):
         if self.lastValue is not None:
@@ -59,16 +79,24 @@ class dynDifferentiator(dyn):
 
 
 class dynSaturation(dyn):
-    param = [-random.random(), random.random()]
+    def __init__(self, params=None):
+        super(dynSaturation, self).__init__()
+        self.lastValue = 0.0
+        if params is None:
+            r = random.random()
+            v = 1.0/(r-0.5) if r != 0.5 else 0
+            self.param = [-v, v]
+        else:
+            self.param = params
 
     def update(self, dt):
         # validacja parametrow
-        if self.param[0] < self.param[1]:
+        if self.param[0] > self.param[1]:
             self.param[0], self.param[1] = self.param[1], self.param[0]
         # dzialanie
         if self.input < self.param[0]:
             self.output = self.param[0]
-        elif self.param[1] > self.input:
+        elif self.input > self.param[1]:
             self.output = self.param[1]
         else:
             self.output = self.input
