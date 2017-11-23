@@ -21,6 +21,10 @@ class Simulator:
             self.add_input()
         for o in range(outputs):
             self.add_output()
+        for i in range(random.randint(0, 3)):
+            self.add_node()
+        for i in range(random.randint(0, 5)):
+            self.add_module(self._random_module(), random.randint(0, len(self.nodes)-1), random.randint(0, len(self.nodes)-1))
 
     def reset_states(self):
         for n in self.nodes:
@@ -126,11 +130,11 @@ class Simulator:
                 self.add_module(self._random_module(), n, n2)
         # delete module
         if random.random() < 0.06 and len(self.modules) > 1:
-            mi = random.randint(0, len(self.modules))
+            mi = random.randint(0, len(self.modules)-1)
             if mi < len(self.modules):
                 self.del_module(mi)
         # mutate param
-        if random.random() < 0.3:
+        if random.random() < 0.03:
             mi = random.randint(0, len(self.modules))
             if mi < len(self.modules):
                 for p in self.modules[mi].param:
@@ -167,11 +171,8 @@ class Simulator:
     def make_step(self, dt):
         assert dt > 0
         self.deltaTime = dt
-        #try:
         list(map(self._update_module, range(len(self.modules))))  # update each module
         list(map(self._update_node, range(len(self.nodes))))  # update each node
-        #except Exception as e:
-        #    print('Exception occured: {}'.format(str(e)))
 
     def get_outputs(self):
         return [self.nodes[n] for n in self.output_nodes]

@@ -87,7 +87,7 @@ if __name__ == "__main__":
     # read data and find linear models
     systems_data = []
     systems = []
-    for f in ('pwm150.txt',): #, 'pwm250.txt'):
+    for f in ('pwm150.txt', ):  #, 'pwm250.txt'):
         print("model from file: " + f)
         V, U = read_data(f, sampling_time)
         T = np.arange(0, len(V))*sampling_time
@@ -99,21 +99,21 @@ if __name__ == "__main__":
     sampling_time = 0.004
     ommits_elements = 10
     # second order
-    m = Model(k=0.86, zeta=(1, 1), w_n=(2.93, 442))
+    m = Model(k=0.86, zeta=(1, 1), w_n=(2.93, 442), sampling_time=sampling_time)
     y = []
     for u in systems_data[0]["U"]:
         U = np.mat([[u], [u]])
-        m.X = m.f(m.X, U, sampling_time)  # (A*dt + I)*X + B*U*dt
+        m.X = m.f(U, sampling_time)  # (A*dt + I)*X + B*U*dt
         y.append(m.measure(m.X)[0, 0])  # Y = C*X
     y = y[0::ommits_elements]
     plt.plot(np.arange(len(y))*sampling_time*ommits_elements, y, 'r--', label='model 2 rzędu')
 
     # first order
-    m = Model(k=0.86, zeta=(1,), w_n=(2.93,))
+    m = Model(k=0.86, zeta=(1,), w_n=(2.93,), sampling_time=sampling_time)
     y1 = []
     for u in systems_data[0]["U"]:
         U = np.mat([[u], [u]])
-        m.X = m.f(m.X, U, sampling_time)
+        m.X = m.f(U, sampling_time)
         y1.append(m.measure(m.X)[0, 0])
     y1 = y1[0::ommits_elements]
     plt.plot(np.arange(len(y1))*sampling_time*ommits_elements, y1, 'y:', label='model 1 rzędu')

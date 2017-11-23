@@ -76,7 +76,7 @@ class Model:
             ], dtype=type(0.0))
         I = np.mat(np.eye(self.A.shape[0]))
         self.dA = (I + self.A*sampling_time/2)*(I - self.A*sampling_time/2)**(-1)
-        self.K, _, _ = self.dlqr(self.A, self.B, self.Q, self.R)
+        #self.K, _, _ = self.dlqr(self.A, self.B, self.Q, self.R)
 
     def f(self, U, delta_time, X = None):
         """

@@ -17,7 +17,7 @@ class Optimizer:
         self.rates = []
         self.evol_counter = 0
         for i in range(pop_size):
-            s = simulator.SimulatorLin(*args)
+            s = simulator.Simulator(*args)
             s.mutate()
             self.population.append(s)
             self.rates.append(self.rate_simulator(s))
@@ -40,14 +40,16 @@ class Optimizer:
 
     def rate_simulator(self, s, iter_range=None):
         err = self._get_simulator_error(s, iter_range)
-        #err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
+        err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
+        if err != err or err == float('inf'):  # is nan
+            err = max(self.rates)
         return err
 
     def tourney_select(self):
         ''' random 'size' individuals
         select best one with probability p
         or second best with probavility p*(1-p) and so on'''
-        tourney_size, tourney_p = 3, 0.6
+        tourney_size, tourney_p = 3, 0.7
         pop_len = len(self.population)
         participants = [random.randint(0, pop_len-1) for i in range(tourney_size)]
         rates = [self.rates[p] for p in participants]
@@ -87,39 +89,67 @@ class Optimizer:
         self.evol_counter += 1
 
 
+def redraw(ax, o):
+    best = o.population[0]
+    ax[0].clear()
+    ax[1].clear()
+    ax[2].clear()
+    best.reset_states()
+    y = best.simulate(o.o_u, o.o_t)
+    ax[0].plot(o.o_t, o.o_y, '--', label='oryginal')
+    ax[0].plot(o.o_t, y, label='symulator')
+    # ax[1].semilogy(range(len(err_avg)), err_avg, '-', label='średni')
+    ax[1].semilogy(range(len(err)), err, '--', label='minimalny')
+    # ax[1].set_ylim([0, 2*err[0]])
+    ax[2].plot(dist_hamming)
+    plt.draw()
+
 if __name__ == "__main__":
-    o = Optimizer(pop_size=200, args=(1, 1))
+    o = Optimizer(pop_size=100, args=(1, 1))
 
     os = simulator.Simulator(1, 1)
     os.add_node()
     os.add_module(modules.dynAmplifier([5]), 0, 2)
     os.add_module(modules.dynSaturation([0, 4]), 2, 1)
 
-    cnt = 200
+    cnt = 20
     o.o_u = [[np.sin(x/10)] for x in range(cnt)]
     o.o_t = [t+0.01 for t in range(cnt)]
     o.o_y = os.simulate(o.o_u, o.o_t)
 
+    plt.ion()
+    f, ax = plt.subplots(3, sharex=False)
+    ax[0].legend()
+    ax[0].set_title('Odpowiedź')
+    ax[0].set_xlabel('czas')
+    ax[0].set_ylabel('odpowiedz')
+    ax[1].set_ylabel('błąd')
+    ax[2].set_ylabel('odl. Hammminga')
+    ax[2].set_xlabel('pokolenie')
+
     ts_start = time.clock()
-    iterations = 10
+    iterations = 30
     err = []
+    err_avg = []
+    dist_hamming = []
     for n in range(iterations):
-        #try:
-            o.evololution()
-            s1 = o.population[4]
-            s2 = o.population[20]
-            mod = ()  #(len(s1.modules), len(s2.modules))
-            nod = ()  #(len(s1.nodes), len(s2.nodes))
-            err.append(o.rate_simulator(s1))
-            print("iter {} fittest {:.1e} mod:{} node:{} time:{}s".format(n, int(err[-1]), mod, nod, (int)(time.clock()-ts_start)))
-            if n % 10 == 0:
-                print(o.population[0])
-        #except Exception as e:
-         #   print('Exception {}'.format(str(e)))
+        o.evololution()
+        s1 = o.population[4]
+        s2 = o.population[20]
+        mod = ()  #(len(s1.modules), len(s2.modules))
+        nod = ()  #(len(s1.nodes), len(s2.nodes))
+        err.append(o.rate_simulator(s1))
+        err_avg.append(np.mean(o.rates))
+        dist_hamming.append(np.mean([p.hamming_distance_to(o.population[0]) for p in o.population[1:]]))
+        print("iter {} fittest {:.1e} mod:{} node:{} time:{}s".format(n, int(err[-1]), mod, nod, (int)(time.clock()-ts_start)))
+        if n % 10 == 0:
+            best = o.population[0]
+            print(best)
+            redraw(ax, o)
     t = time.clock()-ts_start
     model = o.population[0]
 
-    print("czas przeszukiwania: {} ({})".format(t, t/iterations/len(o.population)))
+    print("czas przeszukiwania: {} ({} per individual)".format(t, t/iterations/len(o.population)))
     print("error {}".format(o.rate_simulator(model)))
     print(model)
 
@@ -127,18 +157,7 @@ if __name__ == "__main__":
 
     y = model.simulate(o.o_u, o.o_t)
 
-    print(y)
-
+    plt.ioff()
+    plt.figure('model')
     model.plot()
-    f, ax = plt.subplots(2, sharex=False)
-    ax[0].plot(o.o_t, o.o_y, label='oryginal')
-    ax[0].plot(o.o_t, y, label='symulator')
-    ax[0].legend()
-    ax[0].set_title('Odpowiedź')
-    ax[0].set_xlabel('czas')
-    ax[0].set_ylabel('odpowiedz')
-    ax[1].semilogy(err)
-    #ax[1].set_ylim([0, np.mean(err)])
-    ax[1].set_xlabel('pokolenie')
-    plt.legend()
     plt.show()

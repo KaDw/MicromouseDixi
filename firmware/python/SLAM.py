@@ -38,14 +38,20 @@ def trim_angle(angle):
 
 class Robot:
     h = 0.07  # half wheelbase [m]
+    cell_size = 0.18
 
     class SLAM:
+        ''' bada pozycje X/Y z rozdzielczością co do mm lub większą'''
         def __init__(self, h):
             self.pos = np.array([0, 0], dtype=type(0.0))  # x, y
-            self.alpha = 0.0
-            self.gamma = 1.0
-            self.map = np.mat([[]])
-            self.h = h
+            self.alpha = 0.0  # aktualny kat w rad, os OX to 0, OY to pi/2
+            self.gamma = 1.0  # poziom waznosci enkoderow (1) vs zyroskopu (0)
+            self.h = h  # polowa rozstawu osi
+            self.LAB_CELLS = 4
+            self.lab = [False for i in range((self.LAB_CELLS+1)**2)]  # mapa labiryntu
+            self.glob_deltax = {'N': 0, 'E': 1, 'S': 0, 'W': -1}
+            self.glob_deltay = {'N': 1, 'E': 0, 'S': -1, 'W': 0}
+            self.last_zone = [0, 0]
 
         def odometry(self, encoders):
             self.pos += 0.5*(encoders[0, 0] + encoders[1, 0])*np.array([math.cos(self.alpha), math.sin(self.alpha)])
@@ -58,10 +64,28 @@ class Robot:
         def LED(self, reads):
             pass
 
+        def _wall_bit(self, x, y, glob_dir):
+            '''zwraca numer bitu odpowiedzialnego za dana sciane'''
+            return x+self.glob_deltax[glob_dir] + self.LAB_CELLS*(2*y + self.glob_deltay[glob_dir]+1)
+
+        def _set_wall(self, x, y, glob_dir):
+            bit = self._wall_bit(x, y, glob_dir)
+            self.lab[bit] = True
+
+        def is_wall(self, x, y, glob_dir):
+            bit = self._wall_bit(x, y, glob_dir)
+            return self.lab[bit]
+
+        def check_new_cell(self):
+            local_pos = [p % Robot.cell_size for p in self.pos]
+            zone_size = 0.05 * Robot.cell_size  # relative to cell size
+            zone = [1 if p < zone_size else -1 if p > Robot.cell_size - zone_size else 0 for p in local_pos]
+            for i in range(2):
+                if zone[i] != self.last_zone[i]:
+                    pass
+
         def generate_callbacks(self):
             pass
-
-        # def new_cell_callback(self):
 
     class Profiler:
         def __init__(self, h):
@@ -104,31 +128,67 @@ class Robot:
                            [vv[1]]])
 
     class Controller:
-        cell_size = 0.18
+        def __init__(self, start_angle):
+            self.max_lead_dist = 0.18  # maksymalne oddalenie celu od nas
+            self.min_lead_dist = 0.01  # dystans przy którym zmieniamy cell na kolejny
+            self.target = np.array([5.5, 5.5]) * Robot.cell_size
+            self.trace_iterator = 0
+            self.trace = ['N', 'W', 'E', 'E', 'W', 'W', 'N', 'N']  # from Djikstry
+            self.delta = {'N': [1, 0], 'E': [0, 1], 'S': [-1, 0], 'W': [0, -1]}
+            self.last_cell = [0, 0]
+            self.wait_for_last_cell = False
+            self.current_target = {'x': Robot.cell_size*1.5, 'y': Robot.cell_size*0.5, 'alpha': 0}
+            self.next_target = {'x': Robot.cell_size/2, 'y': Robot.cell_size/2, 'alpha': 0}
 
-        def __init__(self):
-            pass
+        def new_cell_callback(self, new_cell, pslam):
+            ''' aktualizuje punkt docelowy (z rozdzielczoscia komorek)
+            wywolywane gdy kolejna komorka zostanie juz odkryta i zapisana w mapie'''
+            global_dir = self.trace[self.trace_iterator]
+            if pslam.is_wall():  # nie ma sciany do nastepnej komorki
+                pass
+            new_alpha = math.atan2(self.delta[global_dir][1], self.delta[global_dir][0])
+            new_pos = (new_cell[0]+0.5+0.5*self.delta[global_dir][0])*Robot.cell_size,\
+                      (new_cell[1]+0.5+0.5*self.delta[global_dir][1])*Robot.cell_size
+            self.current_target = {'x': new_pos[0],
+                                   'y': new_pos[1],
+                                   'alpha': new_alpha}
+            self.next_target = {'x': new_pos[0]+0.5*Robot.cell_size*self.delta[global_dir][0],
+                                'y': new_pos[1]+0.5*Robot.cell_size*self.delta[global_dir][1],
+                                'alpha': math.atan2(self.delta[global_dir][1], self.delta[global_dir][0])}
+            self.trace_iterator += 1
 
         def get_new_target(self, current_position):
-            cx, cy = int(current_position[0] / self.cell_size), int(current_position[1] / self.cell_size)  # current x/y
-            dx, dy = 0, 0
-            if (cx+cy) % 2 == 0:
-                dx += 1
+            ''' zwraca punkt za ktorym podazamy '''
+            if self.current_target['x'] < 0:  # gdy nie wiadomo gdzie jechac
+                return self.current_target
             else:
-                dy += 1
-            return {'x': (cx+dx+0.5)*self.cell_size, 'y': (cy+dy+0.5)*self.cell_size, 'alpha': math.atan2(dy, dx)}
+                d = np.array([self.current_target['x']-current_position['x'],\
+                             self.current_target['y']-current_position['y'],\
+                             (self.current_target['alpha']-current_position['alpha'])])
+                d[2] = trim_angle(d[2])*Robot.h
+                dist = np.linalg.norm(d)
+                if dist > self.max_lead_dist:  # gdy cel jest zbyt daleko, to go przeskaluj
+                    d *= self.max_lead_dist / dist
+                elif dist < self.min_lead_dist:  # gdy jest zbyt blisko
+                    if self.next_target['x'] > 0 and self.next_target['y'] > 0:  # zamien na kolejny
+                        self.current_target = self.next_target.copy()
+                        self.next_target['x'] = self.next_target['y'] = -1
+                        return self.get_new_target(current_position)
+            print(np.linalg.norm(d))
+            return {'x': current_position['x']+d[0],
+                    'y': current_position['y']+d[1],
+                    'alpha': current_position['alpha']+d[2]}
 
     def __init__(self, sampling_time):
         self.model = model.Model(sampling_time)
         self.slam = Robot.SLAM(self.h)
         self.profiler = Robot.Profiler(self.h)
-        self.controller = Robot.Controller()
+        self.controller = Robot.Controller(self.slam.alpha)
 
     def iterate(self, delta_time):
         pos = np.array([self.slam.pos[0], self.slam.pos[1], self.slam.alpha])
         current_position = {'x': pos[0], 'y': pos[1], 'alpha': pos[2]}
-        current_target = self.controller.get_new_target(self.slam.pos)
-        #r = self.profiler.get_target_vel(current_position, current_target, delta_time)
+        current_target = self.controller.get_new_target(current_position)
         r = self.profiler.get_VW(current_position, current_target, delta_time)
         self.model.iterate(r, delta_time)
         self.slam.odometry(self.model.Y)
@@ -180,6 +240,7 @@ if __name__=="__main__":
             ax[1].plot(i*dt, w, 'ro', label='w_u')
             ax[1].plot(i*dt, v, 'gx', label='v_u')
             lastPos = [x, y]
+            plt.draw()
         plt.ioff()
 
 
