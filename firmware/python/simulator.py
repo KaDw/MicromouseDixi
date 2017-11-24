@@ -219,7 +219,7 @@ class Simulator:
     def plot(self, where = None):
         g = self._get_graph()
         pos = nx.spring_layout(g)
-        nx.draw(g, pos)
+        nx.draw_networkx(g, pos)
         nx.draw_networkx_labels(g, pos, {i:str(i) for i in range(len(g.nodes()))}, font_size=16)
         nx.draw_networkx_edge_labels(g, pos)
 

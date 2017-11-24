@@ -97,11 +97,14 @@ def redraw(ax, o):
     best.reset_states()
     y = best.simulate(o.o_u, o.o_t)
     ax[0].plot(o.o_t, o.o_y, '--', label='oryginal')
+    plt.pause(0.0001)
     ax[0].plot(o.o_t, y, label='symulator')
+    plt.pause(0.0001)
     # ax[1].semilogy(range(len(err_avg)), err_avg, '-', label='średni')
     ax[1].semilogy(range(len(err)), err, '--', label='minimalny')
     # ax[1].set_ylim([0, 2*err[0]])
     ax[2].plot(dist_hamming)
+    plt.pause(0.0001)
     plt.draw()
 
 if __name__ == "__main__":
