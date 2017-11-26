@@ -328,19 +328,19 @@ class SimulatorRPN:
         for r in [*self.state_equations, *self.out_equations]:  # mutacja rownan
             self.mutate_rpn(r)
         len_var = len(self.state_equations)
-        if random.random() < 0.0005:  # dodanie nowej zmiennej stanu
+        if random.random() < 0.01:  # dodanie nowej zmiennej stanu
+            print("dodalem zmienna stanu")
+            len_var += 1
             for e in self.state_equations:
                 e.len_variables = len_var
             for e in self.out_equations:
                 e.len_variables = len_var
             self.state_equations.append(RPN(len_var))
-            self.out_equations.append(RPN(len_var))
-        if random.random() < 0.0005 and len_var > 1:  # usuniecie zmiennej stanu
+        if random.random() < 0.01 and len_var > 1:  # usuniecie zmiennej stanu
+            print("usunalem zmienna stanu")
             n = random.randint(0, len_var-1)
-            xns = n + self.inputs_num
-            del self.state_equations[xns]
-            [e.delete_variable(xns) for e in self.state_equations]
             del self.state_equations[n]
+            [e.delete_variable(n + self.inputs_num) for e in self.state_equations]
             [e.delete_variable(n) for e in self.out_equations]
 
     @staticmethod
