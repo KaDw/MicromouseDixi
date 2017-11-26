@@ -3,8 +3,8 @@ import modules
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-import copy
 import time
+import RPN
 
 
 class Optimizer:
@@ -17,10 +17,10 @@ class Optimizer:
         self.rates = []
         self.evol_counter = 0
         for i in range(pop_size):
-            s = simulator.Simulator(*args)
+            s = RPN.SimulatorRPN(*args)
             s.mutate()
             self.population.append(s)
-            self.rates.append(self.rate_simulator(s))
+            self.rates.append(0)
 
     def prepare(self, x, y, t):
         self.o_t = x
@@ -40,7 +40,10 @@ class Optimizer:
 
     def rate_simulator(self, s, iter_range=None):
         err = self._get_simulator_error(s, iter_range)
-        err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
+        if isinstance(s, simulator.Simulator):
+            err += (len(s.modules) + len(s.nodes))**2 * self.avg_y
+        elif isinstance(s, RPN.SimulatorRPN):
+            err += (len(s.state_equations)-s.inputs_num)**2 * self.avg_y
         if err != err or err == float('inf'):  # is nan
             err = max(self.rates)
         return err
@@ -70,11 +73,10 @@ class Optimizer:
         ''' create new generation basing on current one'''
         elite = 1
         selector = self.tourney_select
-        self.population[elite:] = [selector().cross(selector()) for i in range(len(self.population[elite:]))]
+        self.population[elite:] = [RPN.SimulatorRPN.cross(selector(), selector()) for i in range(len(self.population[elite:]))]
 
     def evololution(self):
         section_len = len(self.o_t) / 2
-
         # cross individuals with score worse than survived
         # parents are reproductive individuals
         self.new_population()
@@ -108,14 +110,14 @@ def redraw(ax, o):
     plt.draw()
 
 if __name__ == "__main__":
-    o = Optimizer(pop_size=100, args=(1, 1))
-
+    random.seed(5)
     os = simulator.Simulator(1, 1)
     os.add_node()
     os.add_module(modules.dynAmplifier([5]), 0, 2)
     os.add_module(modules.dynSaturation([0, 4]), 2, 1)
 
-    cnt = 20
+    cnt = 200
+    o = Optimizer(pop_size=30, args=(1, 1))
     o.o_u = [[np.sin(x/10)] for x in range(cnt)]
     o.o_t = [t+0.01 for t in range(cnt)]
     o.o_y = os.simulate(o.o_u, o.o_t)
@@ -131,14 +133,14 @@ if __name__ == "__main__":
     ax[2].set_xlabel('pokolenie')
 
     ts_start = time.clock()
-    iterations = 30
+    iterations = 15
     err = []
     err_avg = []
     dist_hamming = []
     for n in range(iterations):
         o.evololution()
-        s1 = o.population[4]
-        s2 = o.population[20]
+        s1 = o.population[0]
+        s2 = o.population[5]
         mod = ()  #(len(s1.modules), len(s2.modules))
         nod = ()  #(len(s1.nodes), len(s2.nodes))
         err.append(o.rate_simulator(s1))
@@ -152,6 +154,9 @@ if __name__ == "__main__":
     t = time.clock()-ts_start
     model = o.population[0]
 
+    print('')
+    print('-----------------------------------------------------------------------------------------')
+    print('')
     print("czas przeszukiwania: {} ({} per individual)".format(t, t/iterations/len(o.population)))
     print("error {}".format(o.rate_simulator(model)))
     print(model)
@@ -161,6 +166,7 @@ if __name__ == "__main__":
     y = model.simulate(o.o_u, o.o_t)
 
     plt.ioff()
-    plt.figure('model')
-    model.plot()
+    if isinstance(model, simulator.Simulator):
+        plt.figure('model')
+        model.plot()
     plt.show()
