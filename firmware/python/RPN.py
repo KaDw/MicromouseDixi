@@ -183,6 +183,23 @@ class RPN:
                 raise Exception("operand {} isn't fully supported".format(val))
         return stack.pop()
 
+    def simplify(self):
+        """ zastepuje wyrazenia stale na liczby """
+        r = RPN(1, 0)
+        for i in range(len(self.expression)-1):
+            if self.expression[i] in self.operands[0]:
+                if isinstance(self.expression[i-1], float):
+                    r.expression = self.expression[i-1:i+1]
+                    val = [float(r.calc([]))]
+                    self.replace_branch(i, val)
+                    break
+            elif self.expression[i] in self.operands[1]:
+                if isinstance(self.expression[i-1], float) and isinstance(self.expression[i-2], float):
+                    r.expression = self.expression[i-2:i+1]
+                    val = [float(r.calc([]))]
+                    self.replace_branch(i, val)
+                    break
+
 
 class SimulatorRPN:
     def __init__(self, inputs_num, outputs_num, max_start_variables_num=5):
@@ -334,15 +351,13 @@ class SimulatorRPN:
             self.mutate_rpn(r)
         len_var = len(self.state_equations)
         if random.random() < 0.05:  # dodanie nowej zmiennej stanu
-            print("dodalem zmienna stanu")
             len_var += 1
             for e in self.state_equations:
-                e.len_variables = len_var
+                e.len_variables = len_var+self.inputs_num
             for e in self.out_equations:
                 e.len_variables = len_var
-            self.state_equations.append(RPN(len_var))
+            self.state_equations.append(RPN(len_var+self.inputs_num))
         if random.random() < 0.05 and len_var > 1:  # usuniecie zmiennej stanu
-            print("usunalem zmienna stanu")
             n = random.randint(0, len_var-1)
             del self.state_equations[n]
             [e.delete_variable(n + self.inputs_num) for e in self.state_equations]
@@ -354,7 +369,7 @@ class SimulatorRPN:
         """ stwórz nowego sobnika będącego kopią sim1 i zastąp jedną gałąź gałęzią z sim2 w każdym z równań """
         assert isinstance(sim1, SimulatorRPN)
         assert isinstance(sim2, SimulatorRPN)
-        new_sim = copy.copy(sim1)
+        new_sim = copy.deepcopy(sim1)
         num_st_eq_to_cross = min([len(sim1.state_equations), len(sim2.state_equations)])
         new_sim.state_equations[0:num_st_eq_to_cross] = [SimulatorRPN.cross_rpn(r1, r2) for
                                    r1, r2 in zip(sim1.state_equations[:num_st_eq_to_cross], sim2.state_equations[:num_st_eq_to_cross])]
@@ -372,13 +387,16 @@ class SimulatorRPN:
             r.validate(r.expression)
             assert r.len_variables == len(self.state_equations)
 
+    def simplify(self):
+        for e in [*self.state_equations, *self.out_equations]:
+            e.simplify()
+
     def hamming_distance_to(self, s2):
         """ powinno zwracan przyblizona odleglosc w sensie Hamminga pomiedzy para symulatorow """
         return 0
 
     @staticmethod
     def test():
-        #random.seed(3)
         s = SimulatorRPN(1, 1)
         t = list(range(100))
         u = [[1] for x in range(len(t))]
