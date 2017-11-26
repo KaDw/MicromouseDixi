@@ -80,8 +80,11 @@ class Optimizer:
         # cross individuals with score worse than survived
         # parents are reproductive individuals
         self.new_population()
+        [p.validate() for p in self.population]
         # mutate individuals with score worse than survived
-        [p.mutate() for p in self.population]
+        for p in self.population:
+            p.mutate()
+        [p.validate() for p in self.population]
         # rate simulators
         i = self.evol_counter % int(len(self.o_t)-section_len)
         err_window = None  #(i, i+section_len)
@@ -110,7 +113,7 @@ def redraw(ax, o):
     plt.draw()
 
 if __name__ == "__main__":
-    random.seed(5)
+    random.seed(900)
     os = simulator.Simulator(1, 1)
     os.add_node()
     os.add_module(modules.dynAmplifier([5]), 0, 2)
@@ -133,7 +136,7 @@ if __name__ == "__main__":
     ax[2].set_xlabel('pokolenie')
 
     ts_start = time.clock()
-    iterations = 15
+    iterations = 35
     err = []
     err_avg = []
     dist_hamming = []
@@ -152,6 +155,7 @@ if __name__ == "__main__":
             print(best)
             redraw(ax, o)
     t = time.clock()-ts_start
+    redraw(ax, o)
     model = o.population[0]
 
     print('')

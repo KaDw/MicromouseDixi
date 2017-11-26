@@ -102,7 +102,7 @@ class RPN:
         ''' zastepuje branch ktorego rootem jest element spod indeksu index_operand na nowy branch'''
         ind_start, ind_stop = self.get_branch(index_operand)
         del self.expression[ind_start:ind_stop]
-        self.expression[ind_start:ind_start] = new_expression
+        self.expression[ind_start:ind_start] = self.translate_branch(new_expression)
 
     def random_equation(self, max_value_of_subequations):
         ''' losowanie rownania zlozonego maksymalnie z max_value_of_subequations! operandow'''
@@ -226,7 +226,9 @@ class SimulatorRPN:
         return [e(x) for e in self.out_equations]
 
     def simulate(self, *args):
-        print("symuluje: {} in - {} st - {} out".format(self.inputs_num, len(self.state_equations), self.outputs_num))
+        #print("symuluje: {} in - {} st - {} out".format(self.inputs_num, len(self.state_equations), self.outputs_num))
+        assert [e.len_variables == len(self.state_equations)+self.inputs_num for e in self.state_equations]
+        assert [e.len_variables == len(self.state_equations) for e in self.out_equations]
         return self.simulateEuler(*args)
 
     def simulateOdeint(self, u, t, y0 = None):
@@ -311,16 +313,19 @@ class SimulatorRPN:
             rpn.replace_branch(random.randint(0, len(rpn.expression)-1), new_expression)
 
     @staticmethod
-    def cross_rpn(rpn1, rpn2, new_variable_len):
+    def cross_rpn(rpn1, rpn2, new_variable_len = None):
         """ krzyżowanie równań w odwróconej notacji polskiej """
         new_rpn = copy.deepcopy(rpn1)
-        new_rpn.len_variables = new_variable_len
+        if new_variable_len is not None:
+            new_rpn.len_variables = new_variable_len
+        # wylosuj i przetlumacz brancha z rpn2
         rpn2_start, rpn2_stop = rpn2.get_branch()
-        lll = new_rpn.len_variables
         new_expression = rpn2.expression[rpn2_start:rpn2_stop]
         new_expression = new_rpn.translate_branch(new_expression)
+        # podmien wylosowanego brancha z rpn1
         branch_n_to_replace = random.randint(0, len(new_rpn.expression)-1)
         new_rpn.replace_branch(branch_n_to_replace, new_expression)
+        # i new_rpn jest gotowy
         return new_rpn
 
     def mutate(self):
@@ -328,7 +333,7 @@ class SimulatorRPN:
         for r in [*self.state_equations, *self.out_equations]:  # mutacja rownan
             self.mutate_rpn(r)
         len_var = len(self.state_equations)
-        if random.random() < 0.01:  # dodanie nowej zmiennej stanu
+        if random.random() < 0.05:  # dodanie nowej zmiennej stanu
             print("dodalem zmienna stanu")
             len_var += 1
             for e in self.state_equations:
@@ -336,27 +341,39 @@ class SimulatorRPN:
             for e in self.out_equations:
                 e.len_variables = len_var
             self.state_equations.append(RPN(len_var))
-        if random.random() < 0.01 and len_var > 1:  # usuniecie zmiennej stanu
+        if random.random() < 0.05 and len_var > 1:  # usuniecie zmiennej stanu
             print("usunalem zmienna stanu")
             n = random.randint(0, len_var-1)
             del self.state_equations[n]
             [e.delete_variable(n + self.inputs_num) for e in self.state_equations]
             [e.delete_variable(n) for e in self.out_equations]
+        self.validate()
 
     @staticmethod
     def cross(sim1, sim2):
-        return sim1
+        """ stwórz nowego sobnika będącego kopią sim1 i zastąp jedną gałąź gałęzią z sim2 w każdym z równań """
         assert isinstance(sim1, SimulatorRPN)
         assert isinstance(sim2, SimulatorRPN)
         new_sim = copy.copy(sim1)
-        variable_len = new_sim.out_equations[0].len_variables
-        new_sim.state_equations = [SimulatorRPN.cross_rpn(r1, r2, variable_len+sim1.inputs_num) for
-                                   r1, r2 in zip(sim1.state_equations, sim2.state_equations)]
-        new_sim.out_equations = [SimulatorRPN.cross_rpn(r1, r2, variable_len) for
+        num_st_eq_to_cross = min([len(sim1.state_equations), len(sim2.state_equations)])
+        new_sim.state_equations[0:num_st_eq_to_cross] = [SimulatorRPN.cross_rpn(r1, r2) for
+                                   r1, r2 in zip(sim1.state_equations[:num_st_eq_to_cross], sim2.state_equations[:num_st_eq_to_cross])]
+        new_sim.out_equations = [SimulatorRPN.cross_rpn(r1, r2, len(new_sim.state_equations)) for
                                  r1, r2 in zip(sim1.out_equations, sim2.out_equations)]
+        assert [r.len_variables == len(new_sim.state_equations) for r in new_sim.state_equations]
+        assert [r.len_variables == len(new_sim.state_equations) for r in new_sim.out_equations]
         return new_sim
 
+    def validate(self):
+        for r in self.state_equations:
+            r.validate(r.expression)
+            assert r.len_variables == len(self.state_equations) + self.inputs_num
+        for r in self.out_equations:
+            r.validate(r.expression)
+            assert r.len_variables == len(self.state_equations)
+
     def hamming_distance_to(self, s2):
+        """ powinno zwracan przyblizona odleglosc w sensie Hamminga pomiedzy para symulatorow """
         return 0
 
     @staticmethod
