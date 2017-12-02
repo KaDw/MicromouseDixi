@@ -4,7 +4,85 @@ import networkx as nx
 import random
 import copy
 import numpy as np
+import math
 import matplotlib.pyplot as plt
+import scipy
+
+
+class SimulatorRPN:
+    operands_1 = ['abs', 'relay', 'sin', 'cos']
+    operands_2 = ['-', '+', '*', '/', '**', 'log']
+
+    def __init__(self):
+        self.variables = [0 for x in random.randint(0, 5)]
+        self.equations = [self.random_equation(len(self.variables))]
+
+    def simulate(self, u, t=None):
+        pass
+
+    @staticmethod
+    def random_param(len_variables):
+        if random.random() < 0.5:
+            r = random.random()
+            v = 0.5 / (r - 0.5) if r != 0.5 else 0.0
+            return 'p' + str(v)
+        else:
+            return 'v' + str(random.randint(0, len_variables))
+
+    @staticmethod
+    def random_operand(operands):
+        if operands == 1:
+            return SimulatorRPN.operands_1[random.randint(0, len(SimulatorRPN.operands_1)-1)]
+        elif operands == 2:
+            return SimulatorRPN.operands_2[random.randint(0, len(SimulatorRPN.operands_2)-1)]
+        else:
+            raise Exception("bad operators number ({})".format(operands))
+
+
+    @staticmethod
+    def random_equation(len_variables, max_value_of_subequations=5):
+        if max_value_of_subequations == 0:
+            return ' '.join([SimulatorRPN.random_param(len_variables),
+                             SimulatorRPN.random_operand(1)])
+        elif max_value_of_subequations == 1:
+            return ' '.join([SimulatorRPN.random_param(len_variables),
+                             SimulatorRPN.random_param(len_variables),
+                             SimulatorRPN.random_operand(2)])
+        else:
+            return ' '.join([SimulatorRPN.random_equation(len_variables, random.randint(max_value_of_subequations-1)),
+                             SimulatorRPN.random_equation(len_variables, random.randint(max_value_of_subequations-1)),
+                             SimulatorRPN.random_operand(2)])
+
+    @staticmethod
+    def reverse_polish_notation(expression, variables):
+        stack = []
+        for val in expression.split(' '):
+            if val in SimulatorRPN.operands_2:
+                op1 = stack.pop()
+                op2 = stack.pop()
+                if val == '-': result = op2 - op1
+                elif val == '+': result = op2 + op1
+                elif val == '*': result = op2 * op1
+                elif val == '/': result = op2 / op1
+                elif val == '**': result = op2 ** op1
+                elif val == 'log': result = math.log(abs(op2), abs(op1))
+                else: raise "operand {} isn't fully supported".format(val)
+                stack.append(result)
+            elif val in SimulatorRPN.operands_1:
+                op1 = stack.pop()
+                if val == 'abs': result = math.fabs(op1)
+                elif val == 'relay': result = 1 if op1 >= 0 else -1
+                elif val == 'sin': result = math.sin(op1)
+                elif val == 'cos': result = math.cos(op1)
+                else: raise "operand {} isn't fully supported".format(val)
+                stack.append(result)
+            elif val[0] == 'p':
+                stack.append(float(val[1:]))
+            elif val[0] == 'v':
+                stack.append(variables[int(val[1:])])
+            else:
+                stack.append(float(val))
+        return stack.pop()
 
 
 class Simulator:
@@ -24,7 +102,7 @@ class Simulator:
         for i in range(random.randint(0, 3)):
             self.add_node()
         for i in range(random.randint(0, 5)):
-            self.add_module(self._random_module(), random.randint(0, len(self.nodes)-1), random.randint(0, len(self.nodes)-1))
+            self.add_module(modules.new_random_module(), random.randint(0, len(self.nodes)-1), random.randint(0, len(self.nodes)-1))
 
     def reset_states(self):
         for n in self.nodes:
@@ -96,26 +174,10 @@ class Simulator:
         for i in range(len(lis)):
             self.nodes[self.input_nodes[i]] = lis[i]
 
-    @staticmethod
-    def _random_module():
-        r = random.randint(0, 3)
-        m = None
-        if r == 0:
-            m = modules.dynAmplifier()
-        elif r == 1:
-            m = modules.dynIntegrator()
-        elif r == 2:
-            m = modules.dynDifferentiator()
-        elif r == 3:
-            m = modules.dynSaturation()
-        else:
-            assert AssertionError()
-        return m
-
     def mutate(self):
         # add new module
         if random.random() < 0.03:
-            m = self._random_module()
+            m = modules.new_random_module()
             node_count = len(self.nodes)
             n1, n2 = random.randint(0, node_count - 1), random.randint(0, node_count - 1)
             if n1 != n2:
@@ -123,18 +185,28 @@ class Simulator:
         # add new node with modules
         if random.random() < 0.01:
             node_count = len(self.nodes)
-            n1, n2 = random.randint(0, node_count - 1), random.randint(0, node_count - 1)
-            if n1 != n2:
-                n = self.add_node()
-                self.add_module(self._random_module(), n1, n)
-                self.add_module(self._random_module(), n, n2)
+            ni = random.randint(0, len(self.nodes)-1)
+            no = random.randint(0, len(self.nodes)-1)
+            new_node = self.add_node()
+            self.add_module(modules.new_random_module(), ni, new_node)
+            self.add_module(modules.new_random_module(), new_node, no)
         # delete module
         if random.random() < 0.06 and len(self.modules) > 1:
             mi = random.randint(0, len(self.modules)-1)
-            if mi < len(self.modules):
-                self.del_module(mi)
+            self.del_module(mi)
+        # delete node -- trouble with input/output nodes
+        if random.random() < 0.05 and len(self.nodes) > len(self.input_nodes) + len(self.output_nodes):
+            ni = random.randint(len(self.output_nodes)+len(self.input_nodes), len(self.nodes)-1)
+            if ni not in self.modInNodeNum and ni not in self.modOutNodeNum:
+                del self.nodes[ni]
+                for i, _ in enumerate(self.modules):
+                    if self.modInNodeNum[i] == ni or self.modOutNodeNum[i] == ni:
+                        del self.modOutNodeNum[i]
+                        del self.modInNodeNum[i]
+                        del self.modules[i]
+                        break
         # mutate param
-        if random.random() < 0.03:
+        if random.random() < 0.05:
             mi = random.randint(0, len(self.modules))
             if mi < len(self.modules):
                 for p in self.modules[mi].param:
@@ -151,19 +223,20 @@ class Simulator:
                 sum += 1
         return sum/mx
 
-    def cross(self, second):
-        nmodules = int(min(len(self.modules), len(second.modules)) * random.random())
-        newsim = copy.deepcopy(second)
-        newsim.modules[0:nmodules] = copy.deepcopy(self.modules[0:nmodules])
-        newsim.modInNodeNum[0:nmodules] = copy.deepcopy(self.modInNodeNum[0:nmodules])
-        newsim.modOutNodeNum[0:nmodules] = copy.deepcopy(self.modOutNodeNum[0:nmodules])
+    @staticmethod
+    def cross(first, seccond):
+        nmodules = int(min(len(seccond.modules), len(first.modules)) * random.random())
+        newsim = copy.deepcopy(first)
+        newsim.modules[0:nmodules] = copy.deepcopy(seccond.modules[0:nmodules])
+        newsim.modInNodeNum[0:nmodules] = copy.deepcopy(seccond.modInNodeNum[0:nmodules])
+        newsim.modOutNodeNum[0:nmodules] = copy.deepcopy(seccond.modOutNodeNum[0:nmodules])
         n_nodes = len(newsim.nodes)
         for i in range(len(newsim.modules)):
             if newsim.modOutNodeNum[i] > n_nodes:
                 newsim.modOutNodeNum[i] = random.randint(0, n_nodes-1)
             elif newsim.modInNodeNum[i] > n_nodes:
                 newsim.modInNodeNum[i] = random.randint(0, n_nodes-1)
-        while newsim.hamming_distance_to(second) < 0.25:
+        while newsim.hamming_distance_to(first) < 0.25:
             newsim.mutate()
             newsim.mutate()
         return newsim
@@ -175,6 +248,8 @@ class Simulator:
         list(map(self._update_node, range(len(self.nodes))))  # update each node
 
     def get_outputs(self):
+        if [x for x in self.output_nodes if x >= len(self.nodes)]:
+            print('Error: ', self.output_nodes, len(self.nodes), self.nodes)
         return [self.nodes[n] for n in self.output_nodes]
 
     def _correct_module(self, index):

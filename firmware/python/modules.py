@@ -104,3 +104,7 @@ class dynSaturation(dyn):
     def description(self):
         return ('S', self.param)
 
+def new_random_module():
+    mod_list = [dynAmplifier, dynDifferentiator, dynIntegrator, dynSaturation]
+    r = random.randint(0, len(mod_list)-1)
+    return mod_list[r]()
