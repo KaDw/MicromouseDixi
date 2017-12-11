@@ -18,8 +18,8 @@ class Optimizer:
         self.rates = []
         self.evol_counter = 0
         for i in range(pop_size):
-            #s = simulator.Simulator(*args, True)
-            s = RPN.SimulatorRPN(*args)
+            s = simulator.Simulator(*args, True)
+            #s = RPN.SimulatorRPN(*args)
             s.mutate()
             self.population.append(s)
             self.rates.append(0)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     os.add_module(modules.dynAmplifier([5]), 0, 2)
     os.add_module(modules.dynSaturation([0, 4]), 2, 1)
 
-    o = Optimizer(pop_size=500, args=(1, 1))
+    o = Optimizer(pop_size=300, args=(1, 1))
     # cnt = 200
     # o.o_u = [[np.sin(x/10)] for x in range(cnt)]
     # o.o_t = [t+0.01 for t in range(cnt)]
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         a.plot([1], [1])
 
     ts_start = time.clock()
-    iterations = 250
+    iterations = 150
     err = []
     err_avg = []
     dist_hamming = []

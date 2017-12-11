@@ -1,0 +1,9 @@
+state (1in:1st): [
+1.2361003547843794 sin
+]
+out (1): [
+x0 1.8328562101127972 -1.3928366115518636 saturate
+]
+czas przeszukiwania: 4805.197659606041 (0.03844158127684833 per individual)
+error 1.007492243450222
+population size:  500

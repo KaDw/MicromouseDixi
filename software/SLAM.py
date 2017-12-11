@@ -139,7 +139,7 @@ class Robot:
             self.delta = {'N': [1, 0], 'E': [0, 1], 'S': [-1, 0], 'W': [0, -1]}
             self.last_cell = [0, 0]
             self.wait_for_last_cell = False
-            self.current_target = {'x': Robot.cell_size*1.5, 'y': Robot.cell_size*0.5, 'alpha': 0}
+            self.current_target = {'x': Robot.cell_size*2.5, 'y': Robot.cell_size*0.5, 'alpha': 0}
             self.next_target = {'x': Robot.cell_size/2, 'y': Robot.cell_size/2, 'alpha': 0}
 
         def new_cell_callback(self, new_cell, pslam):
@@ -176,7 +176,6 @@ class Robot:
                 #         self.current_target = self.next_target.copy()
                 #         self.next_target['x'] = self.next_target['y'] = -1
                 #         return self.get_new_target(current_position)
-            print(np.linalg.norm(d))
             return {'x': current_position['x']+d[0],
                     'y': current_position['y']+d[1],
                     'alpha': current_position['alpha']+d[2]}
