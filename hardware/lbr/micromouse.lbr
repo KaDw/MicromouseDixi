@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
@@ -1516,13 +1516,13 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <wire x1="4.36" y1="0.67" x2="4.36" y2="-0.63" width="0.127" layer="21"/>
 <wire x1="4.36" y1="-0.63" x2="-4.34" y2="-0.63" width="0.127" layer="21"/>
 <wire x1="-4.34" y1="-0.63" x2="-4.34" y2="0.67" width="0.127" layer="21"/>
-<circle x="4.72" y="2.84" radius="0.272946875" width="0.762" layer="21"/>
-<wire x1="6.35" y1="-2.54" x2="6.35" y2="2.54" width="0.762" layer="21"/>
-<wire x1="6.3" y1="2.5" x2="5.1" y2="1.3" width="0.762" layer="21"/>
-<wire x1="6.3" y1="2.5" x2="6.4" y2="2.5" width="0.762" layer="21"/>
-<wire x1="6.4" y1="2.5" x2="7.6" y2="1.3" width="0.762" layer="21"/>
-<wire x1="5.1" y1="1.3" x2="7.6" y2="1.3" width="0.762" layer="21"/>
-<text x="9.8" y="-3.3" size="1.27" layer="21" rot="R90">MAGNET</text>
+<circle x="4.466" y="3.8306" radius="0.272946875" width="0.508" layer="21"/>
+<wire x1="5.715" y1="-3.0734" x2="5.715" y2="3.0226" width="0.762" layer="21"/>
+<wire x1="5.665" y1="2.9826" x2="4.465" y2="1.7826" width="0.762" layer="21"/>
+<wire x1="5.665" y1="2.9826" x2="5.765" y2="2.9826" width="0.762" layer="21"/>
+<wire x1="5.765" y1="2.9826" x2="6.965" y2="1.7826" width="0.762" layer="21"/>
+<wire x1="4.465" y1="1.7826" x2="6.965" y2="1.7826" width="0.762" layer="21"/>
+<text x="6.4814" y="1.1156" size="0.762" layer="21" rot="R270">MAGNET</text>
 <pad name="5_2" x="-2.95" y="-1.65" drill="0.7" shape="square"/>
 <pad name="6_2" x="-0.95" y="-1.65" drill="0.7" shape="square"/>
 <pad name="7_2" x="1" y="-1.65" drill="0.7" shape="square"/>
@@ -1541,24 +1541,30 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <smd name="8_1" x="2.972440625" y="-1.869340625" dx="1.27" dy="2.54" layer="16" rot="R180"/>
 </package>
 <package name="MOTOR_MOUNT_V2">
-<wire x1="5" y1="17" x2="-5" y2="17" width="0.127" layer="21"/>
-<wire x1="-5" y1="17" x2="-5" y2="27.5" width="0.127" layer="21"/>
-<wire x1="-5" y1="27.5" x2="5" y2="27.5" width="0.127" layer="21"/>
-<wire x1="5" y1="27.5" x2="5" y2="17" width="0.127" layer="21"/>
-<wire x1="5" y1="-27.5" x2="-5" y2="-27.5" width="0.127" layer="21"/>
-<wire x1="-5" y1="-27.5" x2="-5" y2="-17" width="0.127" layer="21"/>
-<wire x1="-5" y1="-17" x2="5" y2="-17" width="0.127" layer="21"/>
-<wire x1="5" y1="-17" x2="5" y2="-27.5" width="0.127" layer="21"/>
-<rectangle x1="-19" y1="22" x2="-5" y2="27.5" layer="39"/>
-<rectangle x1="5" y1="22" x2="19" y2="27.5" layer="39"/>
-<rectangle x1="-19" y1="-27.5" x2="-5" y2="-22" layer="39"/>
-<rectangle x1="5" y1="-27.5" x2="19" y2="-22" layer="39"/>
-<circle x="-8.5" y="24.75" radius="1" width="0.05" layer="20"/>
-<circle x="8.5" y="24.75" radius="1" width="0.05" layer="20"/>
-<circle x="-8.5" y="-24.75" radius="1" width="0.05" layer="20"/>
-<circle x="8.5" y="-24.75" radius="1" width="0.05" layer="20"/>
-<rectangle x1="-5" y1="-27.5" x2="5" y2="-17" layer="39"/>
-<rectangle x1="-5" y1="17" x2="5" y2="27.5" layer="39"/>
+<rectangle x1="5" y1="22.5" x2="19" y2="27.5" layer="39"/>
+<rectangle x1="-5" y1="17.5" x2="5" y2="27.5" layer="39"/>
+<circle x="9" y="25" radius="1" width="0.05" layer="20"/>
+<rectangle x1="-19" y1="22.5" x2="-5" y2="27.5" layer="39"/>
+<circle x="-9" y="25" radius="1" width="0.05" layer="20"/>
+<wire x1="-19" y1="27.5" x2="-19" y2="22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-19" y1="22.5" x2="-5" y2="22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5" y1="22.5" x2="-5" y2="17.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5" y1="17.5" x2="5" y2="17.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="5" y1="17.5" x2="5" y2="22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="5" y1="22.5" x2="19" y2="22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="19" y1="22.5" x2="19" y2="27.5" width="0.127" layer="21" style="shortdash"/>
+<rectangle x1="-19" y1="-27.5" x2="-5" y2="-22.5" layer="39" rot="R180"/>
+<rectangle x1="-5" y1="-27.5" x2="5" y2="-17.5" layer="39" rot="R180"/>
+<circle x="-9" y="-25" radius="1" width="0.05" layer="20"/>
+<rectangle x1="5" y1="-27.5" x2="19" y2="-22.5" layer="39" rot="R180"/>
+<circle x="9" y="-25" radius="1" width="0.05" layer="20"/>
+<wire x1="19" y1="-27.5" x2="19" y2="-22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="19" y1="-22.5" x2="5" y2="-22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="5" y1="-22.5" x2="5" y2="-17.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="5" y1="-17.5" x2="-5" y2="-17.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5" y1="-17.5" x2="-5" y2="-22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5" y1="-22.5" x2="-19" y2="-22.5" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-19" y1="-22.5" x2="-19" y2="-27.5" width="0.127" layer="21" style="shortdash"/>
 </package>
 <package name="LED_MOUNT">
 <wire x1="4" y1="3" x2="4" y2="-3" width="0.1" layer="21"/>
@@ -1614,6 +1620,24 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <smd name="ANGD1" x="0" y="0" dx="1.27" dy="0.635" layer="16" stop="no" thermals="no" cream="no"/>
 <smd name="GND" x="-0.635" y="0" dx="1.27" dy="0.635" layer="1" stop="no" thermals="no" cream="no"/>
 <smd name="GND1" x="-0.635" y="0" dx="1.27" dy="0.635" layer="16" stop="no" thermals="no" cream="no"/>
+</package>
+<package name="SMT-0540-S-R">
+<wire x1="2.5" y1="-2.5" x2="-2.5" y2="-2.5" width="0.127" layer="21"/>
+<wire x1="-2.5" y1="-2.5" x2="-2.5" y2="1" width="0.127" layer="21"/>
+<wire x1="-2.5" y1="1" x2="-2.5" y2="1.5" width="0.127" layer="21"/>
+<wire x1="-2.5" y1="1.5" x2="-1.5" y2="2.5" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="2.5" x2="2.5" y2="2.5" width="0.127" layer="21"/>
+<wire x1="2.5" y1="2.5" x2="2.5" y2="-2.5" width="0.127" layer="21"/>
+<wire x1="-3.2" y1="0.8" x2="-3.2" y2="-0.7" width="0.127" layer="21" curve="93.949868"/>
+<wire x1="-2.9" y1="-0.4" x2="-2.9" y2="0.5" width="0.127" layer="21" curve="-104.250033"/>
+<wire x1="-2.7" y1="-0.1" x2="-2.7" y2="0.2" width="0.127" layer="21" curve="-106.260205"/>
+<wire x1="-2.5" y1="1" x2="-2.1" y2="0.7" width="0.127" layer="21" curve="-90"/>
+<wire x1="-2.1" y1="0.7" x2="-2.1" y2="-0.7" width="0.127" layer="21"/>
+<wire x1="-2.1" y1="-0.7" x2="-2.4" y2="-1" width="0.127" layer="21" curve="-90"/>
+<circle x="1.6" y="-1.3" radius="0.3162" width="0.127" layer="21"/>
+<smd name="-" x="1.7" y="2.7" dx="1" dy="1" layer="1"/>
+<smd name="M" x="-1.7" y="-2.7" dx="1" dy="1" layer="1"/>
+<smd name="+" x="1.7" y="-2.7" dx="1" dy="1" layer="1"/>
 </package>
 </packages>
 <symbols>
@@ -2157,6 +2181,26 @@ http://www.vishay.com/docs/71151/71151.pdf</description>
 <symbol name="GND_CONN">
 <pin name="AGND" x="-2.54" y="0" length="short"/>
 <pin name="GND" x="2.54" y="0" length="short" rot="R180"/>
+</symbol>
+<symbol name="SMT-0540-S-R">
+<wire x1="-1.905" y1="-0.635" x2="1.905" y2="-0.635" width="0.254" layer="94"/>
+<wire x1="1.905" y1="-0.635" x2="1.905" y2="0" width="0.254" layer="94"/>
+<wire x1="1.905" y1="2.54" x2="-1.905" y2="2.54" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="-0.635" x2="-1.905" y2="0" width="0.254" layer="94"/>
+<wire x1="1.905" y1="2.54" x2="5.08" y2="5.08" width="0.254" layer="94"/>
+<wire x1="5.08" y1="5.08" x2="-5.08" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="2.54" x2="-5.08" y2="5.08" width="0.254" layer="94"/>
+<wire x1="2.54" y1="0" x2="1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="1.905" y1="0" x2="1.905" y2="2.54" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="-1.905" y1="0" x2="-1.905" y2="2.54" width="0.254" layer="94"/>
+<text x="-3.81" y="6.35" size="1.778" layer="95">&gt;NAME</text>
+<text x="-3.81" y="-3.175" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="-" x="5.08" y="0" visible="pad" length="short" direction="pas" rot="R180"/>
+<pin name="+" x="-5.08" y="0" visible="pad" length="short" direction="pas"/>
+<wire x1="-5.08" y1="3.302" x2="-5.08" y2="1.778" width="0.254" layer="94"/>
+<wire x1="-5.842" y1="2.54" x2="-4.318" y2="2.54" width="0.254" layer="94"/>
+<wire x1="4.572" y1="2.54" x2="5.588" y2="2.54" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -2739,6 +2783,22 @@ MOS dual H-bridge motor driver, 1.2A current 3.2A peak
 <connects>
 <connect gate="G$1" pin="AGND" pad="AGND ANGD1"/>
 <connect gate="G$1" pin="GND" pad="GND GND1"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SMT-0540-S-R">
+<gates>
+<gate name="G$1" symbol="SMT-0540-S-R" x="0" y="-2.54"/>
+</gates>
+<devices>
+<device name="" package="SMT-0540-S-R">
+<connects>
+<connect gate="G$1" pin="+" pad="+"/>
+<connect gate="G$1" pin="-" pad="-"/>
 </connects>
 <technologies>
 <technology name=""/>
