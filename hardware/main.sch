@@ -14271,7 +14271,7 @@ Details see: &lt;a href="http://katalog.we-online.de/en/pbs/WE-TVS_High_Speed/82
 <part name="C7" library="rcl" deviceset="C-EU" device="C1206" value="10u"/>
 <part name="GND1" library="supply1" deviceset="GNDA" device="" value="GNDM"/>
 <part name="Q7" library="microbuilder" deviceset="MOSFET-P" device="" value="IRLML2244"/>
-<part name="ON" library="micromouse" deviceset="PRZELACZNIK_SUWAKOWY" device=""/>
+<part name="OFF" library="micromouse" deviceset="PRZELACZNIK_SUWAKOWY" device=""/>
 <part name="R22" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="R25" library="resistor" deviceset="R-EU_" device="R0603" value="15k"/>
 <part name="SUPPLY1" library="supply2" deviceset="+7V" device="" value="+7V4"/>
@@ -14381,7 +14381,6 @@ Details see: &lt;a href="http://katalog.we-online.de/en/pbs/WE-TVS_High_Speed/82
 <part name="D1" library="EAGLE-POWER_MAGNETICS-rev17a" deviceset="WE-TVS_824015" device=""/>
 <part name="AGND1" library="supply2" deviceset="GND" device=""/>
 <part name="+3V28" library="supply1" deviceset="+3V3" device=""/>
-<part name="C1_3" library="rcl" deviceset="C-EU" device="C1206" value="10u"/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="R10" library="rcl" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="R11" library="rcl" deviceset="R-EU_" device="R0603" value="10k"/>
@@ -14511,7 +14510,7 @@ VEE VSS - GND</text>
 <instance part="C7" gate="G$1" x="86.36" y="335.28" rot="R180"/>
 <instance part="GND1" gate="1" x="86.36" y="325.12"/>
 <instance part="Q7" gate="G$1" x="-157.48" y="142.24" rot="MR90"/>
-<instance part="ON" gate="G$1" x="-172.72" y="147.32" rot="R270"/>
+<instance part="OFF" gate="G$1" x="-172.72" y="147.32" rot="R270"/>
 <instance part="R22" gate="G$1" x="-25.4" y="-15.24" rot="R90"/>
 <instance part="R25" gate="G$1" x="-25.4" y="-30.48" rot="R90"/>
 <instance part="SUPPLY1" gate="G$1" x="-25.4" y="20.32"/>
@@ -14637,7 +14636,6 @@ VEE VSS - GND</text>
 <instance part="D1" gate="G$1" x="137.16" y="-7.62"/>
 <instance part="AGND1" gate="GND" x="137.16" y="-20.32"/>
 <instance part="+3V28" gate="G$1" x="137.16" y="5.08"/>
-<instance part="C1_3" gate="G$1" x="-144.78" y="139.7"/>
 <instance part="R8" gate="G$1" x="-22.86" y="200.66" rot="R90"/>
 <instance part="R10" gate="G$1" x="12.7" y="200.66" rot="R90"/>
 <instance part="R11" gate="G$1" x="50.8" y="200.66" rot="R90"/>
@@ -14866,8 +14864,6 @@ VEE VSS - GND</text>
 <wire x1="-190.5" y1="132.08" x2="-154.94" y2="132.08" width="0.1524" layer="91"/>
 <junction x="-154.94" y="132.08"/>
 <pinref part="JP2" gate="G$1" pin="1"/>
-<pinref part="C1_3" gate="G$1" pin="2"/>
-<wire x1="-144.78" y1="134.62" x2="-144.78" y2="132.08" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="GND"/>
@@ -15687,14 +15683,14 @@ VEE VSS - GND</text>
 </net>
 <net name="N$43" class="0">
 <segment>
-<pinref part="ON" gate="G$1" pin="2"/>
+<pinref part="OFF" gate="G$1" pin="2"/>
 <wire x1="-167.64" y1="147.32" x2="-165.1" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-165.1" y1="147.32" x2="-165.1" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="-165.1" y1="149.86" x2="-180.34" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="-162.56" y1="142.24" x2="-162.56" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-162.56" y1="147.32" x2="-165.1" y2="147.32" width="0.1524" layer="91"/>
 <junction x="-165.1" y="147.32"/>
-<pinref part="ON" gate="G$1" pin="5"/>
+<pinref part="OFF" gate="G$1" pin="5"/>
 <wire x1="-177.8" y1="147.32" x2="-180.34" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="-180.34" y1="147.32" x2="-180.34" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="Q7" gate="G$1" pin="D"/>
@@ -15702,12 +15698,12 @@ VEE VSS - GND</text>
 </net>
 <net name="N$46" class="0">
 <segment>
-<pinref part="ON" gate="G$1" pin="6"/>
+<pinref part="OFF" gate="G$1" pin="6"/>
 <wire x1="-177.8" y1="142.24" x2="-180.34" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="-180.34" y1="142.24" x2="-180.34" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="-180.34" y1="144.78" x2="-165.1" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="-165.1" y1="144.78" x2="-165.1" y2="142.24" width="0.1524" layer="91"/>
-<pinref part="ON" gate="G$1" pin="3"/>
+<pinref part="OFF" gate="G$1" pin="3"/>
 <wire x1="-165.1" y1="142.24" x2="-167.64" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="JP1" gate="G$1" pin="2"/>
 <wire x1="-190.5" y1="147.32" x2="-185.42" y2="147.32" width="0.1524" layer="91"/>
@@ -15768,8 +15764,6 @@ VEE VSS - GND</text>
 <wire x1="-144.78" y1="142.24" x2="-144.78" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="Q7" gate="G$1" pin="S"/>
 <wire x1="-152.4" y1="142.24" x2="-144.78" y2="142.24" width="0.1524" layer="91"/>
-<pinref part="C1_3" gate="G$1" pin="1"/>
-<junction x="-144.78" y="142.24"/>
 </segment>
 <segment>
 <pinref part="Q9" gate="G$1" pin="S"/>
@@ -16244,9 +16238,9 @@ VEE VSS - GND</text>
 <label x="50.8" y="-76.2" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="U3" gate="G$1" pin="PC12"/>
-<wire x1="40.64" y1="10.16" x2="40.64" y2="7.62" width="0.1524" layer="91"/>
-<label x="40.64" y="7.62" size="1.016" layer="95" rot="R270" xref="yes"/>
+<pinref part="U3" gate="G$1" pin="PB5"/>
+<wire x1="50.8" y1="10.16" x2="50.8" y2="7.62" width="0.1524" layer="91"/>
+<label x="50.8" y="7.62" size="1.016" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
 <net name="N$22" class="0">
