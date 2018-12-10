@@ -15835,7 +15835,7 @@ VEE VSS - GND</text>
 <junction x="-60.96" y="162.56"/>
 </segment>
 </net>
-<net name="VCC" class="0">
+<net name="+1.8V" class="0">
 <segment>
 <pinref part="R1_1" gate="G$1" pin="2"/>
 <wire x1="-60.96" y1="175.26" x2="-60.96" y2="177.8" width="0.1524" layer="91"/>
